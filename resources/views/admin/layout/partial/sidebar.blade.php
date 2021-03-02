@@ -11,7 +11,7 @@
   <div class="sidebar-wrapper">
     <ul class="nav">
       <li class="nav-item ">
-        <a class="nav-link" href="/">
+        <a class="nav-link" href="{{route('dashboard.index')}}">
           <i class="material-icons">dashboard</i>
           <p>Dashboard</p>
         </a>
@@ -22,12 +22,12 @@
           <p>Manajemen Antrian</p>
         </a>
       </li>
-      <li class="nav-item ">
+      <!-- <li class="nav-item ">
         <a class="nav-link" href="{{route('queueinfo.read')}}">
           <i class="material-icons">library_books</i>
           <p>Tampilan Antrian</p>
         </a>
-      </li>
+      </li> -->
     </ul>
   </div>
 </div>

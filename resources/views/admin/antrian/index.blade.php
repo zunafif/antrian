@@ -141,7 +141,7 @@ function getdate(){
   var h = today.getHours();
   var m = today.getMinutes();
   var s = today.getSeconds();
-    if(m<10){
+    ̀if(m<10){
         m = "0"+m;
     }
     if(s<10){

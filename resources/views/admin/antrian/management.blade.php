@@ -38,12 +38,10 @@ select, select.form-control {
       <i class="material-icons text-danger">filter_alt</i>
       <div class="col-lg-3 col-md-6 col-sm-6">
         <select name="" id="" class="form-control">
-          <option value="" default disable>Pilih Loket Terlebih Dahulu</option>
-          <option value="" >RJ</option>
-          <option value="" >RI</option>
-          <option value="" >Loket 1</option>
-          <option value="" >Loket 2</option>
-          <option value="" >Loket 3</option>
+          <option value="" {{($filter == 'all')? 'selected':''}}>Pilih terlebih dahulu</option>
+          @foreach($counter as $data)
+              <option value="{{$data->id.'-'.$data->counter_type}}" {{($data->id == $filter)? 'selected':''}}>{{$data->name}}</option>
+          @endforeach
         </select>
       </div>
       <div class="col-lg-1 col-md-1 col-sm-1">

@@ -162,18 +162,20 @@ p {
     <h1>Antrian RS BUNDA</h1>
   </div>
   <div class="row landing-button">
+   
     <button class="btn login-button">Login</button>
     <a href="{{route('queueinfo.read')}}"><button class="btn btn-full">Antrian</button></a>
   </div>
   <div class="row landing-form" style="display:none;">
     <div class="form">
-      <form action="">
+    <form method="POST" action="{{ route('login') }}">
+            @csrf
         <div class="form-header">
           Admin
         </div>
         <div class="form-body">
-          <input type="text" placeholder="Username" class="form-control">
-          <input type="password" placeholder="Password" class="form-control">
+          <input type="email" name="email" :value="old('email')" placeholder="Username" class="form-control">
+          <input type="password" name="password" required autocomplete="current-password" placeholder="Password" class="form-control">
         </div>
         <div class="form-footer">
           <input type="submit" value="Login" class="btn btn-success">
