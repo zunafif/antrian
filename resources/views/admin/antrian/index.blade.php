@@ -1,5 +1,8 @@
 @extends('admin/layout/master_blank')
 <style>
+      .address{
+        font-size:16px;
+      }
       img{
         height: 100px;
         width: 100px;
@@ -70,15 +73,19 @@
 <nav class="navbar navbar-light white justify-content-between">
 <a class="navbar-brand waves-effect" href="#">
           <img src="{{asset('img/rsbunda.png')}}" style="width:65px; height:60px;" alt="Logo">
-        </a><h3 class=>Rumah Sakit Bunda</h3>
+        </a><h3 class="text-center"><b>{{Config::get('antrian.nama_rs')}}</b><br><span class="address">{{Config::get('antrian.alamat_rs')}}</span></h3>
+        
   <form class="form-inline my-1">
-  <a href="{{url('/')}}" class="btn btn-teal"><i class="fa fa-home fa-2x"></i></a>
+  <b><h4 style="letter-spacing:1px;" class="clock"></h4></b>
+  <!-- <a href="{{url('/')}}" class="btn btn-teal"><i class="fa fa-home fa-2x"></i></a> -->
+  <h5></h5>
   </form>
 </nav>
 
     <div class="col-12 ml-auto mt-4" style="padding-right:30px;padding-left:30px;">
         <div class="row">
-          <div style="flex-direction:row;display:flex;width:100%;">
+        <div style="width:100%;text-align:center;font-size:30px;font-weight:bold;color:white;letter-spacing:1px;">Antrian</div>
+          <div style="flex-direction:row;display:flex;width:100%;padding-top:15px;">
           <?php $index = 0;?>
           
           @foreach($counter as $val)    
@@ -126,7 +133,24 @@ var index = 1;
 $(document).ready(function(){
   setInterval(function(){getdata();}, 5000);
   // getdata();
+  getdate();
 });
+
+function getdate(){
+  var today = new Date();
+  var h = today.getHours();
+  var m = today.getMinutes();
+  var s = today.getSeconds();
+    if(m<10){
+        m = "0"+m;
+    }
+    if(s<10){
+        s = "0"+s;
+    }
+  $(".clock").text(h+":"+m+":"+s);
+  setTimeout(function(){getdate()}, 500);
+}
+
 
 function play(){
   var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
