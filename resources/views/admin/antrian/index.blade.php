@@ -84,7 +84,7 @@
 
     <div class="col-12 ml-auto mt-4" style="padding-right:30px;padding-left:30px;">
         <div class="row">
-        <div style="width:100%;text-align:center;font-size:30px;font-weight:bold;color:white;letter-spacing:1px;">Antrian</div>
+        <div style="width:100%;text-align:center;font-size:30px;font-weight:bold;color:white;letter-spacing:1px;">ANTRIAN</div>
           <div style="flex-direction:row;display:flex;width:100%;padding-top:15px;">
           <?php $index = 0;?>
           
@@ -133,6 +133,7 @@ var index = 1;
 $(document).ready(function(){
   setInterval(function(){getdata();}, 5000);
   // getdata();
+  
   getdate();
 });
 
@@ -141,7 +142,7 @@ function getdate(){
   var h = today.getHours();
   var m = today.getMinutes();
   var s = today.getSeconds();
-    ̀if(m<10){
+    if(m<10){
         m = "0"+m;
     }
     if(s<10){
@@ -178,9 +179,11 @@ function getdata(){
         let trim = no_skrg.trim();  
         if(trim != no_antri){
           if(data.result[i].current_queue == 0){
-
+            
           }else{
-            play();
+            // play();
+            console.log("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type);
+            console.log(no_antri);
             $("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type).text("");
             $("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type).text(no_antri);
           }
