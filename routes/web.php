@@ -18,8 +18,11 @@ Route::get('/', function () {
 
 Route::group(['middleware' => 'auth:sanctum', 'verified'], function(){
     Route::group(['prefix' => 'admin'], function() {
+        Route::get('/', function () {
+            return redirect('/admin/dashboard');
+        });
         Route::get('/dashboard', 'DashboardController@index')->name('dashboard.index');
-        
+
         Route::group(['prefix' => 'manajemen_antrian'], function () {
             Route::get('{filter?}', 'QueuefoController@index')->name('queuefo.read');
             Route::post('checkData', 'QueuefoController@checkData')->name('queuefo.check');

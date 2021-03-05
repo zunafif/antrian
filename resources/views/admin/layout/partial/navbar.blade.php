@@ -53,10 +53,11 @@
               </p>
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownProfile">
-              <a class="dropdown-item" href="#">Profile</a>
-              <a class="dropdown-item" href="#">Settings</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Log out</a>
+            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+              <a class="dropdown-item" href="" onclick="event.preventDefault();
+                                                this.closest('form').submit();">Log out</a>
+            </form>
             </div>
           </li>
         </ul>

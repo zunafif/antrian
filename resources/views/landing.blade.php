@@ -161,11 +161,17 @@ p {
     <img src="{{asset('img/rsbunda.png')}}" alt="" height="100px" width="120px" style="margin-right:15px;">
     <h1>Antrian RS BUNDA</h1>
   </div>
+  @guest
   <div class="row landing-button">
-   
     <button class="btn login-button">Login</button>
+  </div>
+  @endguest
+  @auth
+  <div class="row landing-button">
+    <a href="{{route('dashboard.index')}}"><button class="btn btn-full">Dashboard</button></a>
     <a href="{{route('queueinfo.read')}}"><button class="btn btn-full">Antrian</button></a>
   </div>
+  @endauth
   <div class="row landing-form" style="display:none;">
     <div class="form">
     <form method="POST" action="{{ route('login') }}">
@@ -179,6 +185,7 @@ p {
         </div>
         <div class="form-footer">
           <input type="submit" value="Login" class="btn btn-success">
+          <input type="button" value="Batal" class="btn btn-default cancel-login">
         </div>
       </form>
     </div>
@@ -221,5 +228,10 @@ $(document).ready(function(){
 $('.login-button').on('click',function(){
   $('.landing-button').hide();
   $('.landing-form').show();
+})
+
+$('.cancel-login').on('click',function(){
+  $('.landing-button').show();
+  $('.landing-form').hide();
 })
 </script>
