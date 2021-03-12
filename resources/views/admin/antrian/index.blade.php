@@ -76,7 +76,7 @@
         </a><h3 class="text-center"><b>{{Config::get('antrian.nama_rs')}}</b><br><span class="address">{{Config::get('antrian.alamat_rs')}}</span></h3>
         
   <form class="form-inline my-1">
-  <b><h4 style="letter-spacing:1px;" class="clock"></h4></b>
+  <a href="{{route('index')}}" style="color:black"><b><h4 style="letter-spacing:1px;" class="clock"></h4></b></a>
   <!-- <a href="{{url('/')}}" class="btn btn-teal"><i class="fa fa-home fa-2x"></i></a> -->
   <h5></h5>
   </form>
