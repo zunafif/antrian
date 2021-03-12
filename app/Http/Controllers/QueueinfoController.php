@@ -19,18 +19,18 @@ class QueueinfoController extends Controller
     protected $paging;
     public function __construct()
     {
-       $this->middleware('auth');
+    //    $this->middleware('auth');
        $this->paging = Config::get('site.paging');
        date_default_timezone_set('Asia/Jakarta');
     }
 
     public function index(Request $request)
     {
-        $authenticate = $this->isAuthenticate($this->modul);
+        // $authenticate = $this->isAuthenticate($this->modul);
 
-        if(!$authenticate) {
-            abort(403,"Forbidden");
-        }
+        // if(!$authenticate) {
+        //     abort(403,"Forbidden");
+        // }
         
         $filter = '';
         $counter_id = '%';
