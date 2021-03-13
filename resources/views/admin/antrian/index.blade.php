@@ -169,7 +169,6 @@ function getdata(){
     method: "POST",
     data:{_token:"{{csrf_token()}}"},
     success:function(data){
-      console.log(data);
       var index = 1;
       var data_index = 0;
       for (let i = 0; i < data.result.length; i++) {
@@ -181,7 +180,7 @@ function getdata(){
           if(data.result[i].current_queue == 0){
             
           }else{
-            // play();
+            play();
             console.log("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type);
             console.log(no_antri);
             $("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type).text("");
