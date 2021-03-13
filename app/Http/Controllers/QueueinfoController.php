@@ -19,7 +19,7 @@ class QueueinfoController extends Controller
     protected $paging;
     public function __construct()
     {
-    //    $this->middleware('auth');
+       $this->middleware('auth');
        $this->paging = Config::get('site.paging');
        date_default_timezone_set('Asia/Jakarta');
     }
