@@ -46,3 +46,11 @@ Route::group(['prefix' => 'antrian'], function () {
     Route::get('{filter?}', 'QueueinfoController@index')->name('queueinfo.read');
     Route::post('checkData', 'QueueinfoController@checkData')->name('queueinfo.check');
 });
+
+Route::group(['prefix' => 'master_loket'], function () {
+    Route::get('', 'CounterController@index')->name('counter_master.index');
+    Route::get('create', 'CounterController@create')->name('counter_master.create');
+    Route::get('edit/{id}', 'CounterController@edit')->name('counter_master.edit');
+    Route::post('store', 'CounterController@store')->name('counter_master.store');
+    Route::post('delete', 'CounterController@delete')->name('counter_master.delete');
+});

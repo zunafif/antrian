@@ -22,6 +22,12 @@
           <p>Manajemen Antrian</p>
         </a>
       </li>
+      <li class="nav-item ">
+        <a class="nav-link" href="{{route('counter_master.index')}}">
+          <i class="material-icons">app_registration</i>
+          <p>Master Loket</p>
+        </a>
+      </li>
       <!-- <li class="nav-item ">
         <a class="nav-link" href="{{route('queueinfo.read')}}">
           <i class="material-icons">library_books</i>

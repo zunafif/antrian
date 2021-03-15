@@ -4,3 +4,5 @@
 <link href="{{asset('admin/assets/css/material-dashboard.css?v=2.1.2')}}" rel="stylesheet" />
 <!-- CSS Just for demo purpose, don't include it in your project -->
 <link href="{{asset('admin/assets/demo/demo.css')}}" rel="stylesheet" />
+<!-- SweetAlert2 -->
+<link rel="stylesheet" href="{{asset('admin/assets/css/sweetalert2.min.css')}}" />

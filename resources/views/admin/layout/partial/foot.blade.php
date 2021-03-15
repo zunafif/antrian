@@ -41,6 +41,9 @@
   <script src="{{asset('admin/assets/js/material-dashboard.js?v=2.1.2" type="text/javascript')}}"></script>
   <!-- Material Dashboard DEMO methods, don't include it in your project! -->
   <script src="{{asset('admin/assets/demo/demo.js')}}"></script>
+  <!-- SweetAlert2 -->
+  <script src="{{asset('admin/assets/js/plugins/sweetalert2.all.min.js')}}"></script>
+  <script src="//cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></sc
   <script>
     $(document).ready(function() {
       $().ready(function() {
