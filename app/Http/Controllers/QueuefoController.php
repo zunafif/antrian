@@ -63,24 +63,6 @@ class QueuefoController extends Controller
         
         $orgId = Auth::user()->getOrganizationUnitId();
         $counter = Counter::where('status',1)->where('ou_fk',$orgId)->get();
-        // $counter_reg = CounterRegistration::leftJoin('mst_counter as c',function($join){
-        //                 $join->on('c.id','=','counter_id');
-        //             })
-        //             ->select(
-        //                 'c.name as counter_name',
-        //                 'counter_registration.id as id',
-        //                 'counter_registration.counter_id as counter_id',
-        //                 'counter_registration.date_visit as date_visit',
-        //                 'counter_registration.queue_number as queue_number',
-        //                 'counter_registration.counter_type as counter_type',
-        //             )
-        //             ->where('counter_registration.date_visit',date('Y-m-d'))
-        //             ->where('counter_registration.counter_id','like',$counter_id)
-        //             ->where('counter_registration.is_next',0)
-        //             ->where('counter_registration.is_skip',0)
-        //             ->where('counter_registration.ou_fk',$orgId)
-        //             ->groupBy('counter_registration.counter_id')
-        //             ->orderBy('counter_registration.queue_number','ASC')->limit($limit)->get();
         $counter_reg = CounterQueue::leftJoin('mst_counter as c',function($join){
                         $join->on('c.id','=','counter_registration_queue.counter_id');
                     })
@@ -92,16 +74,15 @@ class QueuefoController extends Controller
                         'counter_registration_queue.date_visit as date_visit'
                         
                     );
-                    if($filter != 'all'){
+                    if($filter !== 'all'){
                         $counter_reg = $counter_reg->where('counter_registration_queue.counter_id','like',$counterexp[0]);
                     };
                     $counter_reg = $counter_reg->where('counter_registration_queue.ou_fk',$orgId)
                     ->where('counter_registration_queue.date_visit',date('Y-m-d'))
                     ->get();
-        // dd($counter_reg);
         
         $counter_reg_que = CounterQueue::where('ou_fk',$orgId);
-                        if($filter != 'all'){
+                        if($filter !== 'all'){
                             $counter_reg_que = $counter_reg_que->where('counter_id','like',$counterexp[0]);
                         }
                         $counter_reg_que = $counter_reg_que->where('date_visit',date('Y-m-d'))
@@ -121,9 +102,15 @@ class QueuefoController extends Controller
             }
         }
 
-        // dd($counter_reg);
-
-        return view('admin.antrian.management',compact('counter','counter_reg','filter','total_data','counter_reg_que'));
+        $data = [
+            'counter' => $counter,
+            'counter_reg' => $counter_reg,
+            'filter' => $filter,
+            'total_data' => $total_data,
+            'counter_reg_que' => $counter_reg_que
+        ];
+        
+        return view('admin.antrian.management',$data);
     }
 
     function checkData(Request $request){
@@ -180,8 +167,11 @@ class QueuefoController extends Controller
         $result = CounterRegistration::where('counter_type',$counter_type)
                 ->where('queue_number',$queue)
                 ->where('date_visit',date('Y-m-d'))
-                ->where('ou_fk',$orgId)
-                ->update([
+                ->where('ou_fk',$orgId);
+                if($counter_type == 1){
+                    $result = $result->where('counter_id',$counter_id);
+                }
+                $result = $result->update([
                     'is_next' => 1
                 ]);
         $current_que = '';

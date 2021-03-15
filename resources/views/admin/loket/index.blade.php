@@ -101,6 +101,7 @@ $('.delete-button').on('click',function(){
             'Data berhasil dihapus.',
             'success'
           )
+          location.reload();
         }else{
           Swal.fire(
             'Gagal!',

@@ -39,7 +39,8 @@ select, select.form-control {
                   <tr style="background-color:white;">
                     <td>
                       <h3>
-                          {{($val->counter_type == 2)? 'Loket Umum': $val->counter_name }}
+                          <!-- {{($val->counter_type == 2)? 'Loket Umum': $val->counter_name }} -->
+                          {{$val->counter_name}}
                       </h3>
                     </td>
                     <td>{{$val->date_visit}}</td>
@@ -48,10 +49,10 @@ select, select.form-control {
                     @else
                     <td style="text-align:center;font-weight:bold;font-size:20px;" id="queue_number_{{$val->counter_id.'-'.$val->counter_type}}">{{$val->current_queue}}</td>
                     <td style="text-align:center">
-                      <button class="btn btn-primary" onclick="javascript:next({{$val->counter_type}},{{($filter == 'all')? $val->counter_id : $filter }})" id="next_{{$val->counter_id.'-'.$val->counter_type}}"><i class="fa fa-play"></i></button>
+                      <button class="btn btn-primary" onclick="javascript:next({{$val->counter_type}},{{($filter == 'all')? $val->counter_id : $filter }})" id="next_{{$val->counter_id.'-'.$val->counter_type}}"><i class="fa fa-play"></i> Next</button>
                     </td>
                     <td style="text-align:center">
-                      <button class="btn btn-success" onclick="javascript:skip({{$val->counter_type}},{{($filter == 'all')? $val->counter_id : $filter }})" id="skip_{{$val->counter_id.'-'.$val->counter_type}}"><i class="fa fa-forward"></i></button>
+                      <button class="btn btn-success" onclick="javascript:skip({{$val->counter_type}},{{($filter == 'all')? $val->counter_id : $filter }})" id="skip_{{$val->counter_id.'-'.$val->counter_type}}"><i class="fa fa-forward"></i> Skip</button>
                     </td>
                     @endif
                   </tr>
