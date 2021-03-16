@@ -91,7 +91,7 @@
           <?php $index = 0;?>
           
           @foreach($counter as $val)    
-              <div style="width:{{100/Config::('antrian.queue_column')}}%;display:block;padding:25px 10px;float:left;">
+              <div style="width:{{100/Config('antrian.queue_column')}}%;display:block;padding:25px 10px;float:left;">
                 <div style="background-color:white;padding:55px 7px;text-align:center;border-radius:10px;">
                   <h3 style="font-size:35px;margin-bottom:50px;"><b>{{$val->name}}</b></h3>
                   <h2 style="font-size:55px;font-weight:bold;" id="antrian_{{$val->id.'-'.$val->counter_type}}">

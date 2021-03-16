@@ -145,6 +145,7 @@ class QueuefoController extends Controller
         $counter_reg_que = CounterQueue::where('counter_id','like',$counter_id)
             ->where('ou_fk',$orgId)
             ->first();
+        return response()->json($counter_reg_que);
         if(count($counter_reg_que) == 0){
             $counter_reg_que = 'false';
         }

@@ -93,7 +93,7 @@ select, select.form-control {
       if({{$filter}} == 'all'){
 
       }else{
-        setInterval(function(){checkData(filter);}, 2000);
+        // setInterval(function(){checkData(filter);}, 2000);
       }
       
     })
@@ -187,6 +187,7 @@ select, select.form-control {
           method:'POST',
           data:{_token:'{{csrf_token()}}',counter_type:v_counter_type,counter_id:v_counter_id},
           success:function(data){
+            console.log(data);
             var count = false;
             if (data.counter_reg_queue == 'false') {
               // console.log('tidak');
