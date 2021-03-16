@@ -67,6 +67,7 @@
     }
     </style>
     <link rel="icon" href="{{asset('img/favicon.ico')}}" type="image/x-icon">
+    <link rel="stylesheet" href="{{asset('css/plugins/font-awesome.min.css')}}">
     <title>{{config('app.name')}}</title>
 </head>
 <body>
@@ -84,12 +85,13 @@
 
     <div class="col-12 ml-auto mt-4" style="padding-right:30px;padding-left:30px;">
         <div class="row">
-        <div style="width:100%;text-align:center;font-size:30px;font-weight:bold;color:white;letter-spacing:1px;">ANTRIAN</div>
-          <div style="flex-direction:row;display:flex;width:100%;padding-top:15px;">
+          <div style="width:100%;text-align:center;font-size:30px;font-weight:bold;color:white;letter-spacing:1px;">ANTRIAN</div>
+          <div style="position:absolute;right:25" class="sound-button"><i id="sound-icon" class="fa fa-volume-off fa-2x" style="color:white"></i> </div>
+          <div style="width:100%;padding-top:15px;">
           <?php $index = 0;?>
           
           @foreach($counter as $val)    
-              <div style="width:100%;display:block;padding:25px 10px;">
+              <div style="width:{{100/Config::('antrian.queue_column')}}%;display:block;padding:25px 10px;float:left;">
                 <div style="background-color:white;padding:55px 7px;text-align:center;border-radius:10px;">
                   <h3 style="font-size:35px;margin-bottom:50px;"><b>{{$val->name}}</b></h3>
                   <h2 style="font-size:55px;font-weight:bold;" id="antrian_{{$val->id.'-'.$val->counter_type}}">
@@ -121,7 +123,6 @@
         </div>
 
     </div>
-    <iframe src="{{asset('sound/250ms-silence.mp3')}}" allow="autoplay" id="audio" style="display: none"></iframe>
     <audio id="audio_nomor_antrian" src="{{asset('sound/antrian_berikutnya.wav')}}" allow=”autoplay” mute='muted'></audio>
 </body>
 </html>
@@ -193,5 +194,21 @@ function getdata(){
   });
   index = 1;
 }
+
+$(".sound-button").on('click', function(){
+  if($("#sound-icon").hasClass('fa-volume-up')){
+    $("#sound-icon").removeClass('fa-volume-up');
+    $("#sound-icon").addClass('fa-volume-off');
+    var aud = document.getElementById("audio_nomor_antrian");
+    aud.muted = true;
+  }else{
+    $("#sound-icon").removeClass('fa-volume-off');
+    $("#sound-icon").addClass('fa-volume-up');
+    var aud = document.getElementById("audio_nomor_antrian");
+    aud.muted = false;
+  }
+  
+  
+})
 </script>
 @endsection

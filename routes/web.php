@@ -26,9 +26,7 @@ Route::get('/', function () {
     return view('landing');
 })->name('index');
 
-// Route::group(['middleware' => 'auth:sanctum', 'verified'], function(){
 Route::group(['middleware' => 'web'], function(){
-    // Route::group(['middleware' => 'permission:access administrative'], function(){
     Route::group(['middleware' => ['role:admin']], function (){
         Route::get('/dashboard', 'DashboardController@index')->name('dashboard.index');
         Route::group(['prefix' => 'manajemen_antrian'], function () {
