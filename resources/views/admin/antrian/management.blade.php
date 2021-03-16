@@ -115,6 +115,7 @@ select, select.form-control {
               method: "POST",
               data: {_token:"{{csrf_token()}}",counter_type:type,counter_id:counter,common_counter: fix_counter,queue:queue},
               success: function(data){
+                console.log(data);
                 if(data.count == null){
                     alert('Antrian Sudah Habis');
                     disable_button(type,counter);

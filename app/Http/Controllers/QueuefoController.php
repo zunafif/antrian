@@ -145,7 +145,6 @@ class QueuefoController extends Controller
         $counter_reg_que = CounterQueue::where('counter_id','like',$counter_id)
             ->where('ou_fk',$orgId)
             ->first();
-        return response()->json($counter_reg_que);
         if(count($counter_reg_que) == 0){
             $counter_reg_que = 'false';
         }
@@ -194,8 +193,11 @@ class QueuefoController extends Controller
         foreach ($current_que as $key => $value) {
             $current_queue[$key] = $value->current_queue;
         }
-        $result_reg = CounterRegistration::where('counter_type',$counter_type)
-                    ->where('ou_fk',$orgId)
+        $result_reg = CounterRegistration::where('counter_type',$counter_type);
+        if($counter_type == 1){
+            $result_reg = $result_reg->where('counter_id',$counter_id);
+        }
+        $result_reg = $result_reg->where('ou_fk',$orgId)
                     ->where('date_visit',date('Y-m-d'))
                     ->where('is_next',0)
                     ->where('is_skip',0)
