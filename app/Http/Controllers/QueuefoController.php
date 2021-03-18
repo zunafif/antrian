@@ -161,7 +161,7 @@ class QueuefoController extends Controller
         $counter_type = $request->counter_type;
         $counter_id = $request->counter_id;
         // $request->common_counter;
-        
+        date_default_timezone_set("Asia/Jakarta");
         $queue = $request->queue;
         $orgId = Auth::user()->getOrganizationUnitId();
         $result = CounterRegistration::where('counter_type',$counter_type)
@@ -172,7 +172,9 @@ class QueuefoController extends Controller
                     $result = $result->where('counter_id',$counter_id);
                 }
                 $result = $result->update([
-                    'is_next' => 1
+                    'is_next' => 1,
+                    'is_next_timestamp' => date("Y-m-d H:i:s"),
+                    'user_id' => Auth::user()->id
                 ]);
         $current_que = '';
         if($counter_type == 2){
@@ -236,7 +238,8 @@ class QueuefoController extends Controller
                 ->where('date_visit',date('Y-m-d'))
                 ->where('ou_fk',$ou_fk)
                 ->update([
-                    'is_skip' => 1
+                    'is_skip' => 1,
+                    'user_id' => Auth::user()->id
                 ]);
         $current_que = '';
         if($counter_type == 2){

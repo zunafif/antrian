@@ -28,6 +28,12 @@
           <p>Master Loket</p>
         </a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{route('user_master.index')}}">
+          <i class="material-icons">people</i>
+          <p>Master Pengguna</p>
+        </a>
+      </li>
       <!-- <li class="nav-item ">
         <a class="nav-link" href="{{route('queueinfo.read')}}">
           <i class="material-icons">library_books</i>

@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 // });
 
 Route::get('/logout','Auth\LoginController@logout')->name('logout');
-//Auth::routes();
+Auth::routes();
 Route::post('/login','Auth\LoginController@login')->name('login');
 
 // Route::get('/home', 'HomeController@index')->name('home');
@@ -29,6 +29,23 @@ Route::get('/', function () {
 
 Route::group(['middleware' => 'web'], function(){
     Route::group(['middleware' => ['role:admin']], function (){
+        Route::group(['prefix' => 'master_loket'], function () {
+            Route::get('', 'CounterController@index')->name('counter_master.index');
+            Route::get('create', 'CounterController@create')->name('counter_master.create');
+            Route::get('edit/{id}', 'CounterController@edit')->name('counter_master.edit');
+            Route::post('store', 'CounterController@store')->name('counter_master.store');
+            Route::post('delete', 'CounterController@delete')->name('counter_master.delete');
+        });
+        
+        Route::group(['prefix' => 'master_pengguna'], function() {
+           Route::get('', 'UserController@index')->name('user_master.index');
+           Route::get('create', 'UserController@create')->name('user_master.create');
+           Route::get('edit/{id}', 'UserController@edit')->name('user_master.edit');
+           Route::post('store', 'UserController@store')->name('user_master.store');
+           Route::post('delete', 'UserController@delete')->name('user_master.delete');
+        });
+    });
+    Route::group(['middleware' => ['role:admin|counter']], function (){
         Route::get('/dashboard', 'DashboardController@index')->name('dashboard.index');
         Route::group(['prefix' => 'manajemen_antrian'], function () {
             Route::get('{filter?}', 'QueuefoController@index')->name('queuefo.read');
@@ -44,12 +61,4 @@ Route::group(['middleware' => 'web'], function(){
 Route::group(['prefix' => 'antrian'], function () {
     Route::get('{filter?}', 'QueueinfoController@index')->name('queueinfo.read');
     Route::post('checkData', 'QueueinfoController@checkData')->name('queueinfo.check');
-});
-
-Route::group(['prefix' => 'master_loket'], function () {
-    Route::get('', 'CounterController@index')->name('counter_master.index');
-    Route::get('create', 'CounterController@create')->name('counter_master.create');
-    Route::get('edit/{id}', 'CounterController@edit')->name('counter_master.edit');
-    Route::post('store', 'CounterController@store')->name('counter_master.store');
-    Route::post('delete', 'CounterController@delete')->name('counter_master.delete');
 });
