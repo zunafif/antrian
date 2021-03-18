@@ -18,8 +18,8 @@ use Illuminate\Support\Facades\Route;
 // });
 
 Route::get('/logout','Auth\LoginController@logout')->name('logout');
-//Auth::routes();
-Route::post('/login','Auth\LoginController@login')->name('login');
+Auth::routes();
+//Route::post('/login','Auth\LoginController@login')->name('login');
 
 // Route::get('/home', 'HomeController@index')->name('home');
 

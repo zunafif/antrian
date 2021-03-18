@@ -185,7 +185,7 @@ p {
         </div>
         <div class="form-footer">
           <input type="submit" value="Login" class="btn btn-success">
-          <input type="button" value="Batal" class="btn btn-default cancel-login">
+          <!-- <input type="" value="Batal" class="btn btn-default cancel-login"> -->
         </div>
       </form>
     </div>
