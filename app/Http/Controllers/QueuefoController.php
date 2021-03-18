@@ -173,7 +173,7 @@ class QueuefoController extends Controller
                 }
                 $result = $result->update([
                     'is_next' => 1,
-                    'is_next_timestamp' => date("Y-m-d H:i:s"),
+                    'date_next' => date("Y-m-d H:i:s"),
                     'user_id' => Auth::user()->id
                 ]);
         $current_que = '';
