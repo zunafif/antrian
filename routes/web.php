@@ -26,7 +26,7 @@ Route::get('/', function () {
     return view('landing');
 })->name('index');
 
-Route::group(['middleware' => 'web'], function(){
+Route::group(['middleware' => 'auth'], function(){
     Route::group(['middleware' => ['role:admin']], function (){
         Route::get('/dashboard', 'DashboardController@index')->name('dashboard.index');
         Route::group(['prefix' => 'manajemen_antrian'], function () {
