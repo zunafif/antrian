@@ -17,8 +17,9 @@ use Illuminate\Support\Facades\Route;
 //     return view('welcome');
 // });
 
-Route::get('/logout','Auth\LoginController@logout');
-Auth::routes();
+Route::get('/logout','Auth\LoginController@logout')->name('logout');
+//Auth::routes();
+Route::post('/login','Auth\LoginController@login')->name('login');
 
 // Route::get('/home', 'HomeController@index')->name('home');
 
@@ -26,7 +27,7 @@ Route::get('/', function () {
     return view('landing');
 })->name('index');
 
-Route::group(['middleware' => 'auth'], function(){
+Route::group(['middleware' => 'web'], function(){
     Route::group(['middleware' => ['role:admin']], function (){
         Route::get('/dashboard', 'DashboardController@index')->name('dashboard.index');
         Route::group(['prefix' => 'manajemen_antrian'], function () {
