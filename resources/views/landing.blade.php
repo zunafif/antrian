@@ -171,6 +171,9 @@ p {
     <a href="{{route('dashboard.index')}}"><button class="btn btn-full">Dashboard</button></a>
     <a href="{{route('queueinfo.read')}}"><button class="btn btn-full">Antrian</button></a>
   </div>
+  <div class="row text-center">
+    <a href="{{route('logout')}}"><button class="btn btn-login-button">Logout</button></a>
+  </div>
   @endauth
   <div class="row landing-form" style="display:none;">
     <div class="form">
