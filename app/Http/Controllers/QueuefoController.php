@@ -128,8 +128,8 @@ class QueuefoController extends Controller
         }
 
         $result = CounterRegistration::where('ou_fk',$orgId)
-                    ->where('counter_id','like',$counter_id)
-                    ->where('counter_type','like',$counter_type)
+                    ->where('counter_id',$counter_id)
+                    ->where('counter_type',$counter_type)
                     ->where('is_next',0)
                     ->where('is_skip',0)
                     ->where('date_visit',date('Y-m-d'))
@@ -142,10 +142,10 @@ class QueuefoController extends Controller
                         ->where('date_visit',date('Y-m-d'))
                         ->where('ou_fk',$orgId)
                         ->count();
-        $counter_reg_que = CounterQueue::where('counter_id','like',$counter_id)
+        $counter_reg_que = CounterQueue::where('counter_id',$counter_id)
             ->where('ou_fk',$orgId)
             ->first();
-        if($counter_reg_que){
+        if($counter_reg_que == null){
             $counter_reg_que = 'false';
         }
         $data = [

@@ -212,15 +212,15 @@ select, select.form-control {
           success:function(data){
             // console.log(data);
             var count = false;
-            if (data.counter_reg_queue == 'false') {
+            if (data.counter_reg_queue === 'false') {
               // console.log('tidak');
             }else{
               // console.log('masuk');
               count = true;
             }
             
-            if(data.result == null){
-              alert("Tidak Ada Antrian")
+            if(data.result.length == 0){
+              // alert("Tidak Ada Antrian")
             }else{
               for (let index = 0; index < data.result.length; index++) {
                 var counter_id = '';
@@ -232,7 +232,8 @@ select, select.form-control {
                 }
                 if($('#queue_number_'+counter_id+'-'+type).length == 0 && count == true){
                   if($('.ready-button').length == 0){
-                    location.reload();
+                    // console.log('reload 1');
+                    // location.reload();
                     set_fo(type,counter_id);
                   }
                 }else{
@@ -264,9 +265,11 @@ select, select.form-control {
           // console.log(data);
           if(data.count == null){
             alert('Tidak ada antrian');
+            console.log('reload 2');
             location.reload();
           }
           if(data.result != 0){
+            console.log('reload 3');
             location.reload();
           }
         }
@@ -280,6 +283,7 @@ select, select.form-control {
         data:{_token:"{{csrf_token()}}",counter_id:counter,counter_type:counter},
         success:function(data){
           if(data.result != 0){
+            console.log('reload 4')
             location.reload();
           }
         }
