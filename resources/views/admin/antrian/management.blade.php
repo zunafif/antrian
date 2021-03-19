@@ -93,10 +93,19 @@ select, select.form-control {
       if({{$filter}} == 'all'){
 
       }else{
-        // setInterval(function(){checkData(filter);}, 2000);
+        setInterval(function(){checkData(filter);}, 2000);
       }
       
+      setInterval(function(){checkPar(filter);}, 2000);
+      
     })
+    function checkPar(){
+      if($('.par-notif').val() == 0){
+        $('.modal').hide();
+      }else{
+        $('.modal').show();
+      }
+    }
     function next(type,counter){
       // console.log(type,counter);
       $('#disable-button').val(0);
@@ -115,7 +124,7 @@ select, select.form-control {
               method: "POST",
               data: {_token:"{{csrf_token()}}",counter_type:type,counter_id:counter,common_counter: fix_counter,queue:queue},
               success: function(data){
-                console.log(data);
+                
                 if(data.count == null){
                     alert('Antrian Sudah Habis');
                     disable_button(type,counter);
@@ -160,15 +169,28 @@ select, select.form-control {
     }
     
     function disable_button(type,counter){
-      
       $('#next_'+counter+'-'+type).attr('disabled',true);
       $('#skip_'+counter+'-'+type).attr('disabled',true);
+      $('#next_'+counter+'-'+type).removeClass('btn-primary',true);
+      $('#skip_'+counter+'-'+type).removeClass('btn-success',true);
+      $('#next_'+counter+'-'+type).addClass('btn-default',true);
+      $('#skip_'+counter+'-'+type).addClass('btn-default',true);
       $('#disable-button').val(1);
     }
 
     function enable_button(type,counter){
-      $('#next_'+counter+'-'+type).attr('disabled',false);
-      $('#skip_'+counter+'-'+type).attr('disabled',false);
+      par = $('#next_'+counter+'-'+type).attr('disabled');
+      if(par === 'disabled'){
+        $('.par-notif').val(1);
+        $('#next_'+counter+'-'+type).attr('disabled',false);
+        $('#skip_'+counter+'-'+type).attr('disabled',false);
+        $('#next_'+counter+'-'+type).removeClass('btn-default',true);
+        $('#skip_'+counter+'-'+type).removeClass('btn-default',true);
+        $('#next_'+counter+'-'+type).addClass('btn-primary',true);
+        $('#skip_'+counter+'-'+type).addClass('btn-success',true);
+      }else{
+        
+      }
     }
     function checkData(data){
       var id = '';
@@ -188,7 +210,7 @@ select, select.form-control {
           method:'POST',
           data:{_token:'{{csrf_token()}}',counter_type:v_counter_type,counter_id:v_counter_id},
           success:function(data){
-            console.log(data);
+            // console.log(data);
             var count = false;
             if (data.counter_reg_queue == 'false') {
               // console.log('tidak');
@@ -218,7 +240,7 @@ select, select.form-control {
                   if($('#disable-button').val() == 1){
                     enable_button(v_counter_type,v_counter_id);
                   }else{
-                    $('#queue_number_'+counter_id+'-'+type).text(data.result[index].queue_number);
+                    // $('#queue_number_'+counter_id+'-'+type).text(data.result[index].queue_number);
                   }
                 }
               }
@@ -263,10 +285,30 @@ select, select.form-control {
         }
       })
     }
+
+    $('.btn-close-modal').on('click', function(){
+      $('.par-notif').val(0);
+    })
 </script>
 @endsection
-<div id="dialog-confirm" title="Peringatan !" style="display:none">
-  <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Apakah anda yakin untuk melewati antrian selanjutnya?</p>
+<input type="hidden" value="0" class="par-notif">
+<div class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Peringatan!</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Ada antrian baru!</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-close-modal" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
 </div>
 </body>
 
