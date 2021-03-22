@@ -45,15 +45,17 @@ select, select.form-control {
                     </td>
                     <td>{{$val->date_visit}}</td>
                     @if($counter_reg_que->current_queue == 0)
+                      <input type="hidden" id="ready" value="ready">
                       <td colspan="4"><button class="btn btn-danger ready-button" onclick="javascript:ready({{$val->counter_type}},{{$val->counter_id}})">READY</button></td>
                     @else
-                    <td style="text-align:center;font-weight:bold;font-size:20px;" id="queue_number_{{$val->counter_id.'-'.$val->counter_type}}">{{$val->current_queue}}</td>
-                    <td style="text-align:center">
-                      <button class="btn btn-primary" onclick="javascript:next({{$val->counter_type}},{{($filter == 'all')? $val->counter_id : $filter }})" id="next_{{$val->counter_id.'-'.$val->counter_type}}"><i class="fa fa-play"></i> Next</button>
-                    </td>
-                    <td style="text-align:center">
-                      <button class="btn btn-success" onclick="javascript:skip({{$val->counter_type}},{{($filter == 'all')? $val->counter_id : $filter }})" id="skip_{{$val->counter_id.'-'.$val->counter_type}}"><i class="fa fa-forward"></i> Skip</button>
-                    </td>
+                      <input type="hidden" id="ready" value="ready">
+                      <td style="text-align:center;font-weight:bold;font-size:20px;" id="queue_number_{{$val->counter_id.'-'.$val->counter_type}}">{{$val->current_queue}}</td>
+                      <td style="text-align:center">
+                        <button class="btn btn-primary" onclick="javascript:next({{$val->counter_type}},{{($filter == 'all')? $val->counter_id : $filter }})" id="next_{{$val->counter_id.'-'.$val->counter_type}}"><i class="fa fa-play"></i> Next</button>
+                      </td>
+                      <td style="text-align:center">
+                        <button class="btn btn-success" onclick="javascript:skip({{$val->counter_type}},{{($filter == 'all')? $val->counter_id : $filter }})" id="skip_{{$val->counter_id.'-'.$val->counter_type}}"><i class="fa fa-forward"></i> Skip</button>
+                      </td>
                     @endif
                   </tr>
                 @endforeach
@@ -282,9 +284,14 @@ select, select.form-control {
         method:"POST",
         data:{_token:"{{csrf_token()}}",counter_id:counter,counter_type:counter},
         success:function(data){
-          if(data.result != 0){
-            console.log('reload 4')
-            location.reload();
+          console.log(data);
+          if(data.result != null){
+            if($("input:contains('ready')")){
+              location.reload();
+            }else{
+              
+            }
+            
           }
         }
       })

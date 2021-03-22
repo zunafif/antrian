@@ -338,23 +338,20 @@ class QueuefoController extends Controller
         $counter_id = $request->counter_id;
         $counter_type = $request->counter_type;
         $orgId = Auth::user()->getOrganizationUnitId();
-        $counter_reg = CounterRegistration::where('ou_fk',$orgId)
-                    ->where('counter_id',$counter_id)
-                    ->where('counter_type',$counter_type)
+        $counter_reg = CounterRegistration::where('ou_fk',$orgId);
+                    if($counter_type == 0){
+                        $counter_reg = $counter_reg->where('counter_id',$counter_id);
+                    }else{
+                        $counter_reg = $counter_reg->where('counter_id','0');
+                    }
+                    $counter_reg = $counter_reg->where('counter_type',$counter_type)
                     ->where('date_visit',date('Y-m-d'))
                     ->where('is_next',0)
                     ->where('is_skip',0)
                     ->orderBy('queue_number','ASC')
                     ->first();
-        $result = CounterQueue::where('ou_fk',$orgId)
-                ->where('counter_id',$counter_id)
-                ->where('counter_type',$counter_type)
-                ->where('date_visit',date('Y-m-d'))
-                ->update([
-                    'current_queue' => $counter_reg->queue_number
-                ]);
         $data = [
-            'result' => $result
+            'result' => $counter_reg
         ];
         return response()->json($data);
     }
