@@ -42,7 +42,8 @@ class UserController extends Controller
     public function create(Request $request){
         $role = Role::orderBy('id','DESC')->get();
         $data = [
-            'role' => $role
+            'role' => $role,
+            'role_user' => ''
         ];
         return view('admin.user.create', $data);
     }
@@ -77,7 +78,7 @@ class UserController extends Controller
                     ->first();
         $role_user = $user->getRoleNames();
         $role = Role::orderBy('id','ASC')->get();
-            
+         
         $data = [
             'user' => $user,
             'role' => $role,
