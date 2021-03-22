@@ -57,7 +57,7 @@ class QueueinfoController extends Controller
         
         $orgId = Auth::user()->getOrganizationUnitId();
         // dd($orgId);
-        $counter = Counter::where('status',1)->where('ou_fk',$orgId)->get();
+        $counter = Counter::where('status',1)->where('ou_fk',$orgId)->orderBy('z_order','ASC')->get();
         $counter_que = CounterQueue::leftJoin('mst_counter as c',function($join){
                         $join->on('c.id','=','counter_registration_queue.counter_id');
                     })
