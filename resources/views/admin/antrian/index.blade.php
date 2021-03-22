@@ -97,7 +97,6 @@
                     <b>
                     {{$val->name}}
                     @if($val->counter_type == 2)
-                    <br>
                     {{Config::get('antrian.general_counter_name')}}
                     @endif
                     </b>
