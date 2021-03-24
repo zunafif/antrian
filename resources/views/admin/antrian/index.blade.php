@@ -101,6 +101,7 @@
                     @endif
                     </b>
                   </h3>
+                  <audio id="audio_counter-{{$val->counter_type.'-'.$val->id}}" src="{{asset($val->path)}}" allow=”autoplay” mute='muted'></audio>
                   <h2 style="font-size:55px;font-weight:bold;" id="antrian_{{$val->id.'-'.$val->counter_type}}">
                     <?php $print = true?>
                     @if(count($counter_que) == 0)
@@ -130,7 +131,23 @@
         </div>
 
     </div>
-    <audio id="audio_nomor_antrian" src="{{asset('sound/antrian_berikutnya.wav')}}" allow=”autoplay” mute='muted'></audio>
+    <audio id="audio_nomor_antrian" src="{{asset('sound/antrian.wav')}}" allow=”autoplay” mute='muted'></audio>
+    <audio id="ke" src="{{asset('sound/ke.wav')}}" allow=”autoplay” mute='muted'></audio>
+    <audio id="loket" src="{{asset('sound/loket.wav')}}" allow=”autoplay” mute='muted'></audio>
+    <audio id="audio_1" src="{{asset('sound/500ms-silent.wav')}}" allow=”autoplay” mute='muted'></audio>
+    <audio id="audio_2" src="{{asset('sound/500ms-silent.wav')}}" allow=”autoplay” mute='muted'></audio>
+    <audio id="audio_3" src="{{asset('sound/500ms-silent.wav')}}" allow=”autoplay” mute='muted'></audio>
+    <!-- <audio id="audio_0" src="{{asset('sound/0.wav')}}" allow=”autoplay” mute='muted'></audio>
+    <audio id="audio_1" src="{{asset('sound/1.wav')}}" allow=”autoplay” mute='muted'></audio>
+    <audio id="audio_2" src="{{asset('sound/2.wav')}}" allow=”autoplay” mute='muted'></audio>
+    <audio id="audio_3" src="{{asset('sound/3.wav')}}" allow=”autoplay” mute='muted'></audio>
+    <audio id="audio_4" src="{{asset('sound/4.wav')}}" allow=”autoplay” mute='muted'></audio>
+    <audio id="audio_4" src="{{asset('sound/4.wav')}}" allow=”autoplay” mute='muted'></audio>
+    <audio id="audio_5" src="{{asset('sound/5.wav')}}" allow=”autoplay” mute='muted'></audio>
+    <audio id="audio_6" src="{{asset('sound/6.wav')}}" allow=”autoplay” mute='muted'></audio>
+    <audio id="audio_7" src="{{asset('sound/7.wav')}}" allow=”autoplay” mute='muted'></audio>
+    <audio id="audio_8" src="{{asset('sound/8.wav')}}" allow=”autoplay” mute='muted'></audio>
+    <audio id="audio_9" src="{{asset('sound/9.wav')}}" allow=”autoplay” mute='muted'></audio> -->
 </body>
 </html>
 
@@ -161,22 +178,106 @@ function getdate(){
 }
 
 
-function play(){
-  var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-  if (!isChrome){
-    $('#audio_nomor_antrian').get(0).play();
-  }
-  else {
-    $('#audio_nomor_antrian').get(0).play();
-  };
+// function play(){
+//   var audio = document.getElementById("audio_nomor_antrian");
+//   audio.play();
+// }
+function play(counter_type,counter_id,queue){  
+  var audio = document.getElementById("audio_nomor_antrian");
+  audio.play();
+
+  var audio_no;
+  var nextAudio;
+  queue = queue + '';
+  var arque = queue.split('');
+  // var audio_no = document.getElementById('audio');
+  // audio.onended = function(){
+  //   audio_no.play();
+  // }
+  // var duration = 0;
+  // audio_no.onended = function(){
+  //   for (let i = 0; i < arque.length; i++) {
+  //     nextSong = "sound/"+arque[i]+".wav";
+  //     audio_no.src = nextSong;
+  //     audio_no.load();
+  //     audio_no.play();
+  //   }
+  // }
   
+  var audio_no = document.getElementById('audio_1');
+  audio.onended = function(){
+    audio_no.play();
+  }
+  var audio_no2 = document.getElementById('audio_2');
+  var audio_no3 = document.getElementById('audio_3');
+  if(arque.length == 1){
+    document.getElementById("audio_1").muted = false;
+    audio_no.src = "sound/"+arque[0]+".wav";
+    audio_no.load();
+    audio.onended = function(){
+      audio_no.play();
+    }
+    document.getElementById("audio_2").muted = true;
+    document.getElementById("audio_3").muted = true;
+  }
+  if(arque.length == 2){
+    document.getElementById("audio_1").muted = false;
+    document.getElementById("audio_2").muted = false;
+    audio_no.src = "sound/"+arque[0]+".wav";
+    audio_no.load();
+    audio.onended = function(){
+      audio_no.play();
+    }
+
+    audio_no2.src = "sound/"+arque[1]+".wav";
+    audio_no2.load();
+    audio_no.onended = function(){
+      audio_no2.play();
+    }
+    document.getElementById("audio_3").muted = true;
+  }
+  if(arque.length == 3){
+    document.getElementById("audio_1").muted = false;
+    document.getElementById("audio_2").muted = false;
+    document.getElementById("audio_3").muted = false;
+    audio_no.src = "sound/"+arque[0]+".wav";
+    audio_no.load();
+    audio.onended = function(){
+      audio_no.play();
+    }
+    audio_no2.src = "sound/"+arque[1]+".wav";
+    audio_no2.load();
+    audio_no.onended = function(){
+      audio_no2.play();
+    }
+    audio_no3.src = "sound/"+arque[2]+".wav";
+    audio_no3.load();
+    audio_no2.onended = function(){
+      audio_no3.play();
+    }
+  }
+  
+  var loket = document.getElementById("loket");
+  setTimeout(function(){
+  // audio_no.onended = function(){
+    loket.play();
+  // }
+  },(arque.length*1000)+1000)
+    
+  
+
+  var audio_counter = document.getElementById("audio_counter-"+counter_type+"-"+counter_id);
+  loket.onended = function() {
+    audio_counter.play();
+  }
 }
-function getdata(){
+
+async function getdata(){
   $.ajax({
     url: "{{route('queueinfo.check')}}",
     method: "POST",
     data:{_token:"{{csrf_token()}}"},
-    success:function(data){
+    success: async function(data){
       var index = 1;
       var data_index = 0;
       for (let i = 0; i < data.result.length; i++) {
@@ -188,11 +289,14 @@ function getdata(){
           if(data.result[i].current_queue == 0){
             
           }else{
-            play();
+            // play()
+            // playCounter(data.result[i].counter_type,data.result[i].counter_id)
+            await play(data.result[i].counter_type,data.result[i].counter_id,data.result[i].current_queue)
+              
             console.log("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type);
             console.log(no_antri);
-            $("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type).text("");
-            $("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type).text(no_antri);
+            await $("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type).text("");
+            await $("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type).text(no_antri);
           }
         }
           

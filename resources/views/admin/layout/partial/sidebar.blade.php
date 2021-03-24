@@ -34,6 +34,12 @@
           <p>Master Pengguna</p>
         </a>
       </li>
+      <!-- <li class="nav-item">
+        <a class="nav-link" href="{{route('sound_master.index')}}">
+          <i class="material-icons">volume_up</i>
+          <p>Master Suara</p>
+        </a>
+      </li> -->
       <!-- <li class="nav-item ">
         <a class="nav-link" href="{{route('queueinfo.read')}}">
           <i class="material-icons">library_books</i>

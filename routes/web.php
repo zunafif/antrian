@@ -38,12 +38,19 @@ Route::group(['middleware' => 'web'], function(){
         });
         
         Route::group(['prefix' => 'master_pengguna'], function() {
-           Route::get('', 'UserController@index')->name('user_master.index');
-           Route::get('create', 'UserController@create')->name('user_master.create');
-           Route::get('edit/{id}', 'UserController@edit')->name('user_master.edit');
-           Route::post('store', 'UserController@store')->name('user_master.store');
-           Route::post('delete', 'UserController@delete')->name('user_master.delete');
+            Route::get('', 'UserController@index')->name('user_master.index');
+            Route::get('create', 'UserController@create')->name('user_master.create');
+            Route::get('edit/{id}', 'UserController@edit')->name('user_master.edit');
+            Route::post('store', 'UserController@store')->name('user_master.store');
+            Route::post('delete', 'UserController@delete')->name('user_master.delete');
         });
+        // Route::group(['prefix' => 'master_suara'], function() {
+        //     Route::get('', 'SoundController@index')->name('sound_master.index');
+        //     Route::get('create', 'SoundController@create')->name('sound_master.create');
+        //     Route::get('edit/{id}', 'SoundController@edit')->name('sound_master.edit');
+        //     Route::post('store', 'UserController@store')->name('sound_master.store');
+        //     Route::post('delete', 'UserController@delete')->name('sound_master.delete');
+        // });
     });
     Route::group(['middleware' => ['role:admin|counter']], function (){
         Route::get('/dashboard', 'DashboardController@index')->name('dashboard.index');
