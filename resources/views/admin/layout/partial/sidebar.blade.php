@@ -35,7 +35,7 @@
         </a>
       </li>
       <!-- <li class="nav-item">
-        <a class="nav-link" href="{{route('sound_master.index')}}">
+        <a class="nav-link" href="">
           <i class="material-icons">volume_up</i>
           <p>Master Suara</p>
         </a>
