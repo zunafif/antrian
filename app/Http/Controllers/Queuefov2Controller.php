@@ -456,7 +456,7 @@ class Queuefov2Controller extends Controller
                         'counter_next' => $counter_id
                     ]);
         $data = [
-            'current_queue' => $current_que
+            'current_queue' => $current_que->queue_number
         ];
         return response()->json($data);
     }

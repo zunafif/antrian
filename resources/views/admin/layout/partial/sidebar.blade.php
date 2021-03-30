@@ -6,7 +6,7 @@
 -->
   <div class="logo">
     <a href="/" class="simple-text logo-normal">
-      ANTRIAN RS BUNDA
+      ANTRIAN RS BUNDA {{(Config::get('antrian.queue_version') > 1)? 'v'.Config::get('antrian.queue_version') : ''}}
     </a></div>
   <div class="sidebar-wrapper">
     <ul class="nav">
@@ -17,7 +17,11 @@
         </a>
       </li>
       <li class="nav-item ">
+      @if(Config::get('antrian.queue_version') == 1)
         <a class="nav-link" href="{{route('queuefo.read')}}">
+      @else
+        <a class="nav-link" href="{{route('queuefov2.read')}}">
+      @endif
           <i class="material-icons">person</i>
           <p>Manajemen Antrian</p>
         </a>

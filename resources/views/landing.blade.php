@@ -169,7 +169,11 @@ p {
   @auth
   <div class="row landing-button">
     <a href="{{route('dashboard.index')}}"><button class="btn btn-full">Dashboard</button></a>
-    <a href="{{route('queueinfo.read')}}"><button class="btn btn-full">Antrian</button></a>
+    @if(Config::get('antrian.queue_version') == 1)
+      <a href="{{route('queueinfo.read')}}"><button class="btn btn-full">Antrian</button></a>
+    @else
+      <a href="{{route('queueinfov2.read')}}"><button class="btn btn-full">Antrian</button></a>
+    @endif
   </div>
   <div class="row text-center">
     <a href="{{route('logout')}}"><button class="btn btn-login-button">Logout</button></a>

@@ -183,7 +183,7 @@ function getdate(){
 //   var audio = document.getElementById("audio_nomor_antrian");
 //   audio.play();
 // }
-function play(counter_type,counter_id,queue){  
+function play(counter_type,counter_id,queue,code_alpha){  
   var audio = document.getElementById("audio_nomor_antrian");
   audio.play();
 
@@ -205,8 +205,15 @@ function play(counter_type,counter_id,queue){
   //   }
   // }
   
-  var audio_no = document.getElementById('audio_1');
+  var audio_alpha = document.getElementById('audio_alpha');
+  audio_alpha.src = "sound/"+code_alpha+".wav";
+  audio_alpha.load();
   audio.onended = function(){
+    audio_alpha.play();
+  }
+
+  var audio_no = document.getElementById('audio_1');
+  audio_alpha.onended = function(){
     audio_no.play();
   }
   var audio_no2 = document.getElementById('audio_2');
@@ -215,7 +222,7 @@ function play(counter_type,counter_id,queue){
     document.getElementById("audio_1").muted = false;
     audio_no.src = "sound/"+arque[0]+".wav";
     audio_no.load();
-    audio.onended = function(){
+    audio_alpha.onended = function(){
       audio_no.play();
     }
     document.getElementById("audio_2").muted = true;
@@ -226,7 +233,7 @@ function play(counter_type,counter_id,queue){
     document.getElementById("audio_2").muted = false;
     audio_no.src = "sound/"+arque[0]+".wav";
     audio_no.load();
-    audio.onended = function(){
+    audio_alpha.onended = function(){
       audio_no.play();
     }
 
@@ -243,7 +250,7 @@ function play(counter_type,counter_id,queue){
     document.getElementById("audio_3").muted = false;
     audio_no.src = "sound/"+arque[0]+".wav";
     audio_no.load();
-    audio.onended = function(){
+    audio_alpha.onended = function(){
       audio_no.play();
     }
     audio_no2.src = "sound/"+arque[1]+".wav";
@@ -263,7 +270,7 @@ function play(counter_type,counter_id,queue){
   // audio_no.onended = function(){
     loket.play();
   // }
-  },(arque.length*1000)+1000)
+  },(arque.length*1000)+2000)
     
   
 
@@ -283,22 +290,22 @@ function getdata(){
       var data_index = 0;
       for (let i = 0; i < data.result.length; i++) {
         let no = ('00'+ data.result[i].current_queue).slice(-3);
-        let no_antri = no;
+        let no_antri = data.result[i].current_code_alpha + no;
         let no_skrg = $("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type).text();
         let no_alpha = (data.result[i].current_code_alpha != null)? data.result[i].current_code_alpha : "";
-        let trim = no_skrg.trim();  
+        let trim = no_skrg.trim();
         if(trim != no_antri){
           if(data.result[i].current_queue == 0){
             
           }else{
             // play()
             // playCounter(data.result[i].counter_type,data.result[i].counter_id)
-            play(data.result[i].counter_type,data.result[i].counter_id,data.result[i].current_queue)
+            play(data.result[i].counter_type,data.result[i].counter_id,data.result[i].current_queue,data.result[i].current_code_alpha)
               
             console.log("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type);
             console.log(no_antri);
             $("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type).text("");
-            $("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type).text(no_alpha+no_antri);
+            $("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type).text(no_antri);
           }
         }
           

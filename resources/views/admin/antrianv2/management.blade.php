@@ -370,7 +370,8 @@ select, select.form-control {
         method: 'POST',
         data: {_token:'{{csrf_token()}}', counter_type:counter_type, counter_id:counter_id, emergency:emergency},
         success: function(data){
-          console.log(data);
+          $('#ext_queue_take').text('');
+          $('#ext_queue_take').text(data.current_queue);
         }
       })
     }
