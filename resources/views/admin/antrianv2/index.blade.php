@@ -114,7 +114,7 @@
                           @if($val->current_queue == 0)
                             {{'---'}}
                           @else
-                            {{sprintf("%03d", $data->current_queue)}}
+                            {{$data->current_code_alpha}}{{sprintf("%03d", $data->current_queue)}}
                           @endif
                           <?php break;?>
                         @endif
@@ -134,6 +134,7 @@
     <audio id="audio_nomor_antrian" src="{{asset('sound/antrian.wav')}}" allow=”autoplay” mute='muted'></audio>
     <audio id="ke" src="{{asset('sound/ke.wav')}}" allow=”autoplay” mute='muted'></audio>
     <audio id="loket" src="{{asset('sound/loket.wav')}}" allow=”autoplay” mute='muted'></audio>
+    <audio id="audio_alpha" src="{{asset('sound/500ms-silent.wav')}}" allow=”autoplay” mute='muted'></audio>
     <audio id="audio_1" src="{{asset('sound/500ms-silent.wav')}}" allow=”autoplay” mute='muted'></audio>
     <audio id="audio_2" src="{{asset('sound/500ms-silent.wav')}}" allow=”autoplay” mute='muted'></audio>
     <audio id="audio_3" src="{{asset('sound/500ms-silent.wav')}}" allow=”autoplay” mute='muted'></audio>
@@ -272,18 +273,19 @@ function play(counter_type,counter_id,queue){
   }
 }
 
-async function getdata(){
+function getdata(){
   $.ajax({
-    url: "{{route('queueinfo.check')}}",
+    url: "{{route('queueinfov2.check')}}",
     method: "POST",
     data:{_token:"{{csrf_token()}}"},
-    success: async function(data){
+    success: function(data){
       var index = 1;
       var data_index = 0;
       for (let i = 0; i < data.result.length; i++) {
         let no = ('00'+ data.result[i].current_queue).slice(-3);
         let no_antri = no;
         let no_skrg = $("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type).text();
+        let no_alpha = (data.result[i].current_code_alpha != null)? data.result[i].current_code_alpha : "";
         let trim = no_skrg.trim();  
         if(trim != no_antri){
           if(data.result[i].current_queue == 0){
@@ -291,12 +293,12 @@ async function getdata(){
           }else{
             // play()
             // playCounter(data.result[i].counter_type,data.result[i].counter_id)
-            await play(data.result[i].counter_type,data.result[i].counter_id,data.result[i].current_queue)
+            play(data.result[i].counter_type,data.result[i].counter_id,data.result[i].current_queue)
               
             console.log("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type);
             console.log(no_antri);
-            await $("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type).text("");
-            await $("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type).text(no_antri);
+            $("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type).text("");
+            $("#antrian_"+data.result[i].counter_id+'-'+data.result[i].counter_type).text(no_alpha+no_antri);
           }
         }
           

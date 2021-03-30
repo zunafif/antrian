@@ -11,10 +11,10 @@ use App\Models\Counter;
 use Auth;
 use Config;
 
-class QueueinfoController extends Controller
+class Queueinfov2Controller extends Controller
 {
     use AuthenticateModulTrait;
-    private $modul = 'manajemen_antrian';
+    private $modul = 'antrian';
  
     protected $paging;
     public function __construct()
@@ -76,7 +76,8 @@ class QueueinfoController extends Controller
                         'c.name as name',
                         'counter_registration_queue.counter_id as counter_id',
                         'counter_registration_queue.counter_type as counter_type',
-                        'counter_registration_queue.current_queue as current_queue'
+                        'counter_registration_queue.current_queue as current_queue',
+                        'counter_registration_queue.current_code_alpha as current_code_alpha'
                     )
                     ->where('c.ou_fk',$orgId)
                     ->where('counter_registration_queue.date_visit',date('Y-m-d'))
@@ -93,7 +94,7 @@ class QueueinfoController extends Controller
             }
         }
         $general_counter = Counter::where('ou_fk',$orgId)->where('status',1)->where('counter_type',2)->count();
-        return view('admin.antrian.index',compact('counter','counter_que','filter','count_que','general_counter'));
+        return view('admin.antrianv2.index',compact('counter','counter_que','filter','count_que','general_counter'));
     }
 
     function checkData(Request $request){
@@ -105,7 +106,8 @@ class QueueinfoController extends Controller
             'c.name as name',
             'counter_registration_queue.counter_id as counter_id',
             'counter_registration_queue.counter_type as counter_type',
-            'counter_registration_queue.current_queue as current_queue'
+            'counter_registration_queue.current_queue as current_queue',
+            'counter_registration_queue.current_code_alpha as current_code_alpha'
         )
         ->where('c.ou_fk',$orgId)
         ->where('counter_registration_queue.date_visit',date('Y-m-d'))
@@ -114,7 +116,6 @@ class QueueinfoController extends Controller
         $general_counter = Counter::where('ou_fk',$orgId)->where('status',1)->where('counter_type',2)->count();
         $data = [
             'result' => $counter_que,
-            
             'general_counter' => $general_counter
         ];
         return response()->json($data);

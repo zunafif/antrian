@@ -25,22 +25,51 @@ select, select.form-control {
               <tr>
                 <th>Loket</th>
                 <th>Tanggal Kunjungan</th>
-                <th>Antrian Kunjungan</th>
-                <th>Next</th>
-                <th>Stop</th>
+                <th style="text-align:center;">Antrian Kunjungan</th>
+                <th style="text-align:center;">Next</th>
+                <th style="text-align:center;">Stop</th>
               </tr>
             </thead>
             <tbody>
-              @if($filter == 'all' || !isset($counter_reg_que->current_queue))
-
+              <tr id="ext_queue" style="background-color:{{($emergency != 1 && $counter_type == 2)? '#e74c3c' : 'white' }};color:{{($emergency != 1 && $counter_type == 2)? 'white' : 'black' }}; display:{{($filter === 'all' || count($counter_reg) == 0)? 'none' : ''}};" >
+              @if($emergency == 1 && $counter_type == 1)
+                <td>Antrian Umum</td>
+              @elseif($emergency == 0 && $counter_type == 1)
+                <td>Antrian Umum</td>
               @else
+                <td>Antrian Emergency</td>
+              @endif
+                <td>{{date('Y-m-h')}}</td>
+                <td style="text-align:center;">
+                  <span id="ext_queue_take">Belum Ambil Antrian</span>
+                  <br>
+                  <br>
+                  <span style="color:{{($emergency != 1 && $counter_type == 2)? 'silver' : 'grey' }};">
+                    Tersisa <span id="ext_queue_left">-</span> Antrian
+                  </span>
+                </td>
+                
+                <td style="text-align:center">
+                  <button class="btn btn-primary" onclick="javascript:extnext({{$counter_type.','.$counter_id.','.$emergency}})" id="next_{{$counter_type.'-'.$counter_id.'-'.$emergency}}"><i class="fa fa-play"></i> Next</button>
+                </td>
+                <td style="text-align:center">
+                  <button class="btn btn-success" onclick="javascript:extskip({{$counter_type.','.$counter_id.','.$emergency}})" id="skip_{{$counter_type.'-'.$counter_id.'-'.$emergency}}"><i class="fa fa-forward"></i> Skip</button>
+                </td>
+              </tr>
               
+              @if($filter == 'all' || !isset($counter_reg_que->current_queue))
+                
+              @else
+                
                 @foreach($counter_reg as $key => $val)
-                  <tr style="background-color:white;">
+                  <tr style="background-color:{{($emergency == 1)? '#e74c3c' : 'white' }};color:{{($emergency == 1)? 'white' : 'black' }}">
                     <td>
                       <h3>
                           <!-- {{($val->counter_type == 2)? 'Loket Umum': $val->counter_name }} -->
                           {{$val->counter_name}}
+                          @if($emergency == 1)
+                            {{" (Emergency)"}}
+                          @endif
                       </h3>
                     </td>
                     <td>{{$val->date_visit}}</td>
@@ -65,7 +94,7 @@ select, select.form-control {
         </div>
       </div>
     </div>
-    <form role="form" method="get" action="{{ route('queuefo.read') }}">
+    <form role="form" method="get" action="{{ route('queuefov2.read') }}">
       <div class="row" style="margin-left:0px;margin-right:0px;">
         <i class="material-icons text-danger">filter_alt</i>
           {{ csrf_field() }}
@@ -73,7 +102,7 @@ select, select.form-control {
             <select name="filter" id="filter" class="form-control">
               <option value="" {{($filter == 'all')? 'selected':''}}>Pilih terlebih dahulu</option>
               @foreach($counter as $data)
-                  <option value="{{$data->id.'-'.$data->counter_type}}" {{($data->id == $filter)? 'selected':''}}>{{$data->name}}</option>
+                  <option value="{{$data->id.'-'.$data->counter_type.'-'.$data->emergency}}" {{($data->id == $filter)? 'selected':''}}>{{$data->name}}</option>
               @endforeach
             </select>
           </div>
@@ -100,7 +129,39 @@ select, select.form-control {
       
       setInterval(function(){checkPar(filter);}, 2000);
       
+      setInterval(function(){checkEmergency(filter);}, 1000);
     })
+
+    function checkEmergency(data){
+      var id = '';
+      var v_counter_id = '';
+      var v_counter_type = '';
+      var v_emergency = '';
+      if(data != ''){
+        id = data.split("-");
+        v_counter_type = id[1];
+        v_counter_id = id[0];
+        v_emergency = id[2];
+        extQueue(v_counter_id,v_counter_type,v_emergency);
+      }else{
+        v_counter_type = 'all';
+        v_counter_id = 'all';
+      }
+      
+    }
+
+    function extQueue(id,type,emergency){
+      $.ajax({
+        method: "POST",
+        url: "{{route('queuefov2.checkext')}}",
+        data: {_token:"{{csrf_token()}}", counter_id:id, counter_type:type, counter_emergency:emergency},
+        success: function(data){
+          $('#ext_queue_left').text('');
+          $('#ext_queue_left').text(data.queue_left);
+        }
+      })
+    }
+
     function checkPar(){
       if($('.par-notif').val() == 0){
         $('.modal').hide();
@@ -108,6 +169,7 @@ select, select.form-control {
         $('.modal').show();
       }
     }
+
     function next(type,counter){
       // console.log(type,counter);
       $('#disable-button').val(0);
@@ -122,7 +184,7 @@ select, select.form-control {
             }
             var queue = $('#queue_number_'+counter+'-'+type).text();
             $.ajax({
-              url: "{{route('queuefo.next')}}",
+              url: "{{route('queuefov2.next')}}",
               method: "POST",
               data: {_token:"{{csrf_token()}}",counter_type:type,counter_id:counter,common_counter: fix_counter,queue:queue},
               success: function(data){
@@ -152,7 +214,7 @@ select, select.form-control {
             }
             var queue = $('#queue_number_'+counter+'-'+type).text();
             $.ajax({
-              url: "{{route('queuefo.skip')}}",
+              url: "{{route('queuefov2.skip')}}",
               method: "POST",
               data: {_token:"{{csrf_token()}}",counter_type:type,counter_id:counter,common_counter: fix_counter,queue:queue},
               success: function(data){
@@ -208,7 +270,7 @@ select, select.form-control {
       }
       var count_req_queue = '';
         $.ajax({
-          url:"{{route('queuefo.check')}}",
+          url:"{{route('queuefov2.check')}}",
           method:'POST',
           data:{_token:'{{csrf_token()}}',counter_type:v_counter_type,counter_id:v_counter_id},
           success:function(data){
@@ -260,7 +322,7 @@ select, select.form-control {
       }
       
       $.ajax({
-        url:"{{route('queuefo.ready')}}",
+        url:"{{route('queuefov2.ready')}}",
         method:"POST",
         data:{_token:"{{csrf_token()}}",counter_id:counter,counter_type:type},
         success:function(data){
@@ -280,7 +342,7 @@ select, select.form-control {
     
     function set_fo(type,counter){
       $.ajax({
-        url:"{{route('queuefo.set_fo')}}",
+        url:"{{route('queuefov2.set_fo')}}",
         method:"POST",
         data:{_token:"{{csrf_token()}}",counter_id:counter,counter_type:counter},
         success:function(data){
@@ -300,6 +362,22 @@ select, select.form-control {
     $('.btn-close-modal').on('click', function(){
       $('.par-notif').val(0);
     })
+
+    function extnext(counter_type,counter_id,emergency){
+      console.log(counter_type,counter_id,emergency);
+      $.ajax({
+        url: "{{route('queuefov2.extnext')}}",
+        method: 'POST',
+        data: {_token:'{{csrf_token()}}', counter_type:counter_type, counter_id:counter_id, emergency:emergency},
+        success: function(data){
+          console.log(data);
+        }
+      })
+    }
+
+    function extskip(counter_type,counter_id,emergency){
+      
+    }
 </script>
 @endsection
 <input type="hidden" value="0" class="par-notif">
