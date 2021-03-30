@@ -50,10 +50,10 @@ select, select.form-control {
                 </td>
                 
                 <td style="text-align:center">
-                  <button class="btn btn-primary" onclick="javascript:extnext({{$counter_type.','.$counter_id.','.$emergency}})" id="next_{{$counter_type.'-'.$counter_id.'-'.$emergency}}"><i class="fa fa-play"></i> Next</button>
+                  <button class="btn btn-primary" onclick="javascript:extnext({{$counter_type.','.$counter_id.','.$emergency}})" id="nextext"><i class="fa fa-play"></i> Next</button>
                 </td>
                 <td style="text-align:center">
-                  <button class="btn btn-success" onclick="javascript:extskip({{$counter_type.','.$counter_id.','.$emergency}})" id="skip_{{$counter_type.'-'.$counter_id.'-'.$emergency}}"><i class="fa fa-forward"></i> Skip</button>
+                  <button class="btn btn-success" onclick="javascript:extskip({{$counter_type.','.$counter_id.','.$emergency}})" id="skipext"><i class="fa fa-forward"></i> Skip</button>
                 </td>
               </tr>
               
@@ -158,6 +158,13 @@ select, select.form-control {
         success: function(data){
           $('#ext_queue_left').text('');
           $('#ext_queue_left').text(data.queue_left);
+          if(data.queue_left == 0){
+            $('#nextext').prop('disabled',true);
+            $('#skipext').prop('disabled',true);
+          }else if(data.queue_left > 0 && $('#nextext').prop('disabled') == true){
+            $('#nextext').prop('disabled',false);
+            $('#skipext').prop('disabled',false);
+          }
         }
       })
     }

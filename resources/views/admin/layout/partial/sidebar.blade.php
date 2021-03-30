@@ -5,7 +5,7 @@
     Tip 2: you can also add an image using data-image tag
 -->
   <div class="logo">
-    <a href="/" class="simple-text logo-normal">
+    <a href="{{route('index')}}" class="simple-text logo-normal">
       ANTRIAN RS BUNDA {{(Config::get('antrian.queue_version') > 1)? 'v'.Config::get('antrian.queue_version') : ''}}
     </a></div>
   <div class="sidebar-wrapper">
