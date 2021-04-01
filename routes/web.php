@@ -72,6 +72,7 @@ Route::group(['middleware' => 'web'], function(){
             Route::post('extNext', 'Queuefov2Controller@extNext')->name('queuefov2.extnext');
             Route::post('extSkip', 'Queuefov2Controller@extSkip')->name('queuefov2.extskip');
         });
+        
     });
 });
 

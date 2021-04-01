@@ -70,7 +70,30 @@ class Queuefov2Controller extends Controller
         }
         
         $orgId = Auth::user()->getOrganizationUnitId();
+        $profile = Counter::where('id', $c_id)->where('ou_fk',$orgId)->first();
         $counter = Counter::where('status',1)->where('ou_fk',$orgId)->get();
+        $last_que = '';
+        // if($c_type == 2){
+        //     $last_que = CounterRegistration::where('ou_fk',$orgId)
+        //                 ->where('counter_type',$c_type)
+        //                 ->where('is_next',0)
+        //                 ->where('is_skip',0)
+        //                 ->orderBy('queue_number','ASC')
+        //                 ->first();
+        // }else{
+        //     $last_que = CounterRegistration::where('ou_fk',$orgId)
+        //                 ->where('counter_type',$counter_type)
+        //                 ->where('counter_id',$c_id)
+        //                 ->where('is_next',0)
+        //                 ->where('is_skip',0)
+        //                 ->orderBy('queue_number','ASC')
+        //                 ->first();
+        // }
+        // dd($last_que);
+        // if($last_que == null){
+
+        // }
+
         $counter_reg = CounterQueue::leftJoin('mst_counter as c',function($join){
                         $join->on('c.id','=','counter_registration_queue.counter_id');
                     })
@@ -79,8 +102,8 @@ class Queuefov2Controller extends Controller
                         'counter_registration_queue.current_queue as current_queue',
                         'counter_registration_queue.counter_type as counter_type',
                         'counter_registration_queue.counter_id as counter_id',
-                        'counter_registration_queue.date_visit as date_visit'
-                        
+                        'counter_registration_queue.date_visit as date_visit',
+                        'c.emergency'
                     );
                     if($filter !== 'all'){
                         $counter_reg = $counter_reg->where('counter_registration_queue.counter_id','like',$counterexp[0]);
@@ -88,6 +111,152 @@ class Queuefov2Controller extends Controller
                     $counter_reg = $counter_reg->where('counter_registration_queue.ou_fk',$orgId)
                     ->where('counter_registration_queue.date_visit',date('Y-m-d'))
                     ->get();
+
+        //--additional counter
+        //get counter emergency if choose general, otherwise
+        $counter_add_s = '';
+        $counter_add_se = '';
+        $counter_add_g = '';
+        if($c_type == 1 && $emergency == 1){
+            //if select special and emergency, get general and special
+            $counter_add_g = CounterQueue::leftJoin('mst_counter as c',function($join){
+                $join->on('c.id','=','counter_registration_queue.counter_id');
+            })
+            ->select(
+                'counter_registration_queue.id',
+                DB::raw("'Antrian Umum' as counter_name"),
+                DB::raw("'Belum Ambil Antrian' as current_queue"),
+                'counter_registration_queue.counter_type as counter_type',
+                'counter_registration_queue.counter_id as counter_id',
+                'counter_registration_queue.date_visit as date_visit',
+                'c.emergency'
+            )
+            ->where('counter_registration_queue.ou_fk',$orgId)
+            ->where('c.emergency',0)
+            ->where('counter_registration_queue.counter_type',2)
+            ->where('counter_registration_queue.date_visit',date('Y-m-d'))
+            ->limit(1)
+            ->get();
+            
+
+            $collection = collect($counter_reg);
+            $merged     = $collection->merge($counter_add_g);
+            $counter_reg   = $merged->all();
+
+            $counter_add_s = CounterQueue::leftJoin('mst_counter as c',function($join){
+                $join->on('c.id','=','counter_registration_queue.counter_id');
+            })
+            ->select(
+                'c.name as counter_name',
+                'counter_registration_queue.current_queue as current_queue',
+                'counter_registration_queue.counter_type as counter_type',
+                'counter_registration_queue.counter_id as counter_id',
+                'counter_registration_queue.date_visit as date_visit',
+                'c.emergency'
+            )
+            ->where('counter_registration_queue.ou_fk',$orgId)
+            ->where('c.emergency',0)
+            ->where('c.id','!=',$c_id)
+            ->where('counter_registration_queue.counter_type',$c_type)
+            ->where('counter_registration_queue.date_visit',date('Y-m-d'))
+            ->get();
+
+            $collection = collect($counter_reg);
+            $merged     = $collection->merge($counter_add_s);
+            $counter_reg   = $merged->all();
+            
+        }else if($c_type == 1 && $emergency == 0){
+            //if select special and not emergency, get general and emergency
+            $counter_add_se = CounterQueue::leftJoin('mst_counter as c',function($join){
+                $join->on('c.id','=','counter_registration_queue.counter_id');
+            })
+            ->select(
+                DB::raw("'Antrian Emergency' as counter_name"),
+                DB::raw("'Belum Ambil Antrian' as current_queue"),
+                'counter_registration_queue.counter_type as counter_type',
+                'counter_registration_queue.counter_id as counter_id',
+                'counter_registration_queue.date_visit as date_visit',
+                'c.emergency'
+            )
+            ->where('counter_registration_queue.ou_fk',$orgId)
+            ->where('c.emergency',1)
+            ->where('counter_registration_queue.counter_type',1)
+            ->where('counter_registration_queue.date_visit',date('Y-m-d'))
+            ->limit(1)
+            ->get();
+
+            $counter_add_g = CounterQueue::leftJoin('mst_counter as c',function($join){
+                $join->on('c.id','=','counter_registration_queue.counter_id');
+            })
+            ->select(
+                DB::raw("'Antrian Umum' as counter_name"),
+                DB::raw("'Belum Ambil Antrian' as current_queue"),
+                'counter_registration_queue.counter_type as counter_type',
+                'counter_registration_queue.counter_id as counter_id',
+                'counter_registration_queue.date_visit as date_visit',
+                'c.emergency'
+            )
+            ->where('counter_registration_queue.ou_fk',$orgId)
+            ->where('c.emergency',0)
+            ->where('counter_registration_queue.counter_type',2)
+            ->where('counter_registration_queue.date_visit',date('Y-m-d'))
+            ->limit(1)
+            ->get();
+
+            $collection = collect($counter_add_se);
+            $merged     = $collection->merge($counter_add_g);
+            $counter_add_g   = $merged->all();
+
+            $collection = collect($counter_add_g);
+            $merged     = $collection->merge($counter_reg);
+            $counter_reg   = $merged->all();
+        }else{
+            //if select general, get emergency and special
+            $counter_add_se = CounterQueue::leftJoin('mst_counter as c',function($join){
+                $join->on('c.id','=','counter_registration_queue.counter_id');
+            })
+            ->select(
+                DB::raw("'Antrian Emergency' as counter_name"),
+                DB::raw("'Belum Ambil Antrian' as current_queue"),
+                'counter_registration_queue.counter_type as counter_type',
+                'counter_registration_queue.counter_id as counter_id',
+                'counter_registration_queue.date_visit as date_visit',
+                'c.emergency'
+            )
+            ->where('counter_registration_queue.ou_fk',$orgId)
+            ->where('c.emergency',1)
+            ->where('counter_registration_queue.counter_type',1)
+            ->where('counter_registration_queue.date_visit',date('Y-m-d'))
+            ->limit(1)
+            ->get();
+
+            $collection = collect($counter_add_se);
+            $merged     = $collection->merge($counter_reg);
+            $counter_reg   = $merged->all();
+
+            $counter_add_s = CounterQueue::leftJoin('mst_counter as c',function($join){
+                $join->on('c.id','=','counter_registration_queue.counter_id');
+            })
+            ->select(
+                'c.name as counter_name',
+                'counter_registration_queue.current_queue as current_queue',
+                'counter_registration_queue.counter_type as counter_type',
+                'counter_registration_queue.counter_id as counter_id',
+                'counter_registration_queue.date_visit as date_visit',
+                'c.emergency'
+            )
+            ->where('counter_registration_queue.ou_fk',$orgId)
+            ->where('c.emergency',0)
+            ->where('c.id','!=',$c_id)
+            ->where('counter_registration_queue.counter_type',1)
+            ->where('counter_registration_queue.date_visit',date('Y-m-d'))
+            ->get();
+
+            $collection = collect($counter_reg);
+            $merged     = $collection->merge($counter_add_s);
+            $counter_reg   = $merged->all();
+        }
+        
         
         $counter_reg_que = CounterQueue::where('ou_fk',$orgId);
                         if($filter !== 'all'){
@@ -102,10 +271,9 @@ class Queuefov2Controller extends Controller
                         ->where('counter_registration.counter_id','like',$counter_id)
                         ->where('ou_fk',$orgId)
                         ->count();
-
-        
         
         $data = [
+            'profile' => $profile,
             'counter' => $counter,
             'counter_reg' => $counter_reg,
             'filter' => $filter,
@@ -170,6 +338,15 @@ class Queuefov2Controller extends Controller
         date_default_timezone_set("Asia/Jakarta");
         $queue = $request->queue;
         $orgId = Auth::user()->getOrganizationUnitId();
+        // $res = null;
+        // if($counter_type == 2){
+        //     $res = CounterQueue::where('ou_fk',$orgId)
+        //         ->where('counter_type', 2)
+        //         ->where('current_queue',$queue)
+        //         ->where('date_visit',date('Y-m-d'))
+        //         ->first();
+        // }
+        
         $result = CounterRegistration::where('counter_type',$counter_type)
                 ->where('queue_number',$queue)
                 ->where('date_visit',date('Y-m-d'))
@@ -177,24 +354,32 @@ class Queuefov2Controller extends Controller
                 if($counter_type == 1){
                     $result = $result->where('counter_id',$counter_id);
                 }
-                $result = $result->update([
-                    'is_next' => 1,
-                    'date_next' => date("Y-m-d H:i:s"),
-                    'user_id' => Auth::user()->id,
-                    'counter_next' => $counter_id
-                ]);
+                // if($res == null){
+                    $result = $result->update([
+                        'is_next' => 1,
+                        'date_next' => date("Y-m-d H:i:s"),
+                        'user_id' => Auth::user()->id,
+                        'counter_next' => $counter_id
+                    ]);
+                // }
+                
         $current_que = '';
         if($counter_type == 2){
-            $current_que = CounterQueue::where('counter_type',$counter_type)
-                ->where('ou_fk',$orgId)
-                ->where('date_visit',date('Y-m-d'))
+            $current_que = CounterQueue::leftJoin('mst_counter as c',function($join){
+                    $join->on('c.code_alpha','counter_registration_queue.current_code_alpha');
+                })
+                ->where('c.counter_type',$counter_type)
+                ->where('counter_registration_queue.ou_fk',$orgId)
+                ->where('counter_registration_queue.date_visit',date('Y-m-d'))
                 ->get();
         }else{
-            $current_que = CounterQueue::where('counter_type',$counter_type)
-                ->where('counter_id',$counter_id)
-                ->where('counter_type',$counter_type)
-                ->where('ou_fk',$orgId)
-                ->where('date_visit',date('Y-m-d'))
+            $current_que = CounterQueue::leftJoin('mst_counter as c',function($join){
+                    $join->on('c.code_alpha','counter_registration_queue.current_code_alpha');
+                })
+                ->where('c.counter_type',$counter_type)
+                ->where('c.id',$counter_id)
+                ->where('counter_registration_queue.ou_fk',$orgId)
+                ->where('counter_registration_queue.date_visit',date('Y-m-d'))
                 ->get();
         }
         
@@ -366,98 +551,109 @@ class Queuefov2Controller extends Controller
         return response()->json($data);
     }
 
-    function extNext(Request $request){
-        $orgId = Auth::user()->getOrganizationUnitId();
+    function extnext(Request $request){
         $counter_type = $request->counter_type;
-        $counter_id = $request->counter_id;
         $emergency = $request->emergency;
+        $counter_id = $request->counter_id;
+        $counter_next = $request->counter_next;
+        
+        date_default_timezone_set("Asia/Jakarta");
+        $queue = $request->queue;
+        $orgId = Auth::user()->getOrganizationUnitId();
+        
+        $result = CounterRegistration::where('counter_type',$counter_type)
+                ->where('queue_number',$queue)
+                ->where('date_visit',date('Y-m-d'))
+                ->where('ou_fk',$orgId);
+                if($counter_type == 1){
+                    $result = $result->where('counter_id',$counter_id);
+                }
 
-        $current_queue = array();
-        $current_alpha = array();
-        $current = '';
-        $list = '';
+                // if($res == null){    
+                    $result = $result->update([
+                        'is_next' => 1,
+                        'date_next' => date("Y-m-d H:i:s"),
+                        'user_id' => Auth::user()->id,
+                        'counter_next' => $counter_next
+                    ]);
+                // }
+        $result_current = CounterRegistration::where('counter_type',$counter_type)
+                ->where('queue_number',$queue)
+                ->where('date_visit',date('Y-m-d'))
+                ->where('ou_fk',$orgId);
+                if($counter_type == 1){
+                    $result_current = $result_current->where('counter_id',$counter_id);
+                }
+                $result_current = $result_current->first();
+
+        $current_que = '';
         if($counter_type == 2){
-            $list = CounterQueue::leftJoin('mst_counter as c',function($join){
-                        $join->on('c.id','counter_registration_queue.counter_id');
-                    })
-                    ->where('counter_registration_queue.ou_fk',$orgId)
-                    ->where('counter_registration_queue.counter_type',1)
-                    ->where('c.emergency',1)
-                    ->where('counter_registration_queue.date_visit',date('Y-m-d'))
-                    ->get();
-        }else if($counter_type == 1 && $emergency == 0){
-            $list = CounterQueue::leftJoin('mst_counter as c',function($join){
-                        $join->on('c.id','counter_registration_queue.counter_id');
-                    })
-                    ->where('counter_registration_queue.ou_fk',$orgId)
-                    ->where('counter_registration_queue.counter_type',2)
-                    ->where('c.emergency',0)
-                    ->where('counter_registration_queue.date_visit',date('Y-m-d'))
-                    ->get();
+            $current_que = CounterQueue::where('current_code_alpha',$result_current->code_alpha)
+                // ->where('counter_type',$counter_type)
+                ->where('ou_fk',$orgId)
+                ->where('date_visit',date('Y-m-d'))
+                ->get();
         }else{
-            $list = CounterQueue::leftJoin('mst_counter as c',function($join){
-                $join->on('c.id','counter_registration_queue.counter_id');
-            })
-            ->where('counter_registration_queue.ou_fk',$orgId)
-            ->where('counter_registration_queue.counter_type',2)
-            ->where('c.emergency',0)
-            ->where('counter_registration_queue.date_visit',date('Y-m-d'))
-            ->get();
+            $current_que = CounterQueue::leftJoin('mst_counter as c', function($join){
+                    $join->on('c.id','counter_registration_queue.counter_id');
+                })
+                // ->where('counter_registration_queue.counter_type',$counter_type)
+                // ->where('c.emergency',$emergency)
+                ->where('counter_registration_queue.current_code_alpha',$result_current->code_alpha)
+                ->where('counter_registration_queue.ou_fk',$orgId)
+                ->where('counter_registration_queue.date_visit',date('Y-m-d'))
+                ->get();
         }
 
-        foreach ($list as $key => $value) {
+        $current = '';
+        foreach ($current_que as $key => $value) {
             $current = $current."concat('".$value->current_code_alpha."',".$value->current_queue.")";
             $current = $current.',';
         }
         $current = rtrim($current, ", ");
 
-        if($counter_type == 1 && $emergency == 0){
-            $current_que = CounterRegistration::where('ou_fk',$orgId)
-                            ->where('is_next',0)
-                            ->where('is_skip',0)
-                            ->where('counter_id',0)
-                            ->where('date_visit',date('Y-m-d'))
-                            ->whereRaw('(concat(code_alpha,queue_number)) not in ('.$current.')')
-                            ->first();
-        }else if($counter_type == 1 && $emergency == 1){
-            $current_que = CounterRegistration::where('ou_fk',$orgId)
-                            ->where('is_next',0)
-                            ->where('is_skip',0)
-                            ->where('counter_id',0)
-                            ->where('date_visit',date('Y-m-d'))
-                            ->whereRaw('(concat(code_alpha,queue_number)) not in ('.$current.')')
-                            ->first();
-        }else{
-            $current_que = CounterRegistration::leftJoin('mst_counter as c',function($join){
-                                $join->on('c.id','counter_registration.counter_id');
-                            })
-                            ->where('c.emergency',1)
-                            ->where('counter_registration.ou_fk',$orgId)
-                            ->where('counter_registration.is_next',0)
-                            ->where('counter_registration.is_skip',0)
-                            ->where('counter_registration.date_visit',date('Y-m-d'))
-                            ->whereRaw('(concat(counter_registration.code_alpha,counter_registration.queue_number)) not in ('.$current.')')
-                            ->first();
+        $result_reg = CounterRegistration::leftJoin('mst_counter as c',function($join){
+                        $join->on('c.id','counter_registration.counter_id');
+                    })
+                    ->where('counter_registration.counter_type',$counter_type);
+        if($counter_type == 1){
+            $result_reg = $result_reg->where('c.emergency',$emergency);
         }
+        $result_reg = $result_reg->select(
+                        'counter_registration.queue_number as queue_number',
+                        'counter_registration.code_alpha as code_alpha'
+                    )
+                    ->where('counter_registration.ou_fk',$orgId)
+                    ->where('counter_registration.date_visit',date('Y-m-d'))
+                    ->where('is_next',0)
+                    ->where('is_skip',0);
+                    if(count($current_que) != 0){
+                        $result_reg = $result_reg->whereRaw('(concat(counter_registration.code_alpha,counter_registration.queue_number)) not in ('.$current.')');
+                    }
+                    $result_reg = $result_reg->orderBy('counter_registration.queue_number','ASC')
+                    ->first();
+        
 
-        $queue = CounterQueue::where('counter_id',$counter_id)
-                ->where('date_visit',date('Y-m-d'))
-                ->where('ou_fk',$orgId)
-                ->update([
-                    'current_queue' => $current_que->queue_number,
-                    'current_code_alpha' => $current_que->code_alpha
-                ]);
-
-        $set_counter_next = CounterRegistration::where('id',$current_que->id)
-                    ->update([
-                        'is_next' => 1,
-                        'date_next' => date("Y-m-d H:i:s"),
-                        'user_id' => Auth::user()->id,
-                        'counter_next' => $counter_id
-                    ]);
+        $result_next = '';
+        if($result_reg != null){
+            $result_next = CounterQueue::where('counter_id',$counter_next)
+                        ->where('ou_fk',$orgId)
+                        ->where('date_visit',date('Y-m-d'))
+                        ->update([
+                            'current_queue' => $result_reg->queue_number,
+                            'current_code_alpha' => $result_reg->code_alpha
+                        ]);
+            $result_next = CounterQueue::where('counter_id',$counter_next)
+                        ->where('ou_fk',$orgId)
+                        ->where('date_visit',date('Y-m-d'))
+                        ->first();
+        }
+        
         $data = [
-            'current_queue' => $current_que->queue_number
+            'result' => $result_next,
+            'count' => $result_reg
         ];
+
         return response()->json($data);
     }
 
@@ -467,100 +663,92 @@ class Queuefov2Controller extends Controller
 
     function checkExtData(Request $request){
         $orgId = Auth::user()->getOrganizationUnitId();
-        $counter_type = $request->counter_type;
+
         $counter_id = $request->counter_id;
+        $counter_type = $request->counter_type;
         $emergency = $request->counter_emergency;
-        $limit = 1;
-        
-        $current_que = '';
-        $que_left = '';
-        // if($emergency == 1){
-        //     //get not emergency & general counter list
-        //     $current_que = CounterQueue::where('ou_fk',$orgId)
-        //                     ->where('counter_type',2)
-        //                     ->get();
-        //     $que_left = CounterRegistration::where('ou_fk',$orgId)
-        //                     ->where('counter_type',2)
-        //                     ->where('is_next',0)
-        //                     ->where('is_skip',0)
-        //                     ->where('date_visit',date('Y-m-d'))
-        //                     ->count();
-        // }else{
-        //     //get emergency & general counter list
-        //     $current_que = CounterQueue::leftJoin('mst_counter as c', function($join){
-        //                         $join->on('c.id','counter_registration_queue.counter_id');
-        //                     })
-        //                     ->where('c.ou_fk',$orgId)
-        //                     ->where('c.counter_type',1)
-        //                     ->where('c.emergency',1)
-        //                     ->get();
-        //     $que_left = CounterRegistration::leftJoin('mst_counter as c',function($join){
-        //                         $join->on('c.id','counter_registration.counter_id');
-        //                     })
-        //                     ->where('counter_registration.ou_fk',$orgId)
-        //                     ->where('c.emergency',1)
-        //                     ->where('counter_registration.is_next',0)
-        //                     ->where('counter_registration.is_skip',0)
-        //                     ->where('counter_registration.date_visit',date('Y-m-d'))
-        //                     ->count();
-        // }
+        $general_count = 0;
+        $s_emergency_count = 0;
+        $special_count = 0;
+        $tes = 0;
+        if($counter_type == 1 && $emergency != 1){
+            $tes =1;
+            // check general and special emergency
+            $general_counter = CounterRegistration::where('ou_fk',$orgId)
+                            ->where('counter_type',2)
+                            ->where('date_visit',date('Y-m-d'))
+                            ->where('is_next',0)
+                            ->where('is_skip',0)
+                            ->count();
+            $s_emergency_counter = CounterRegistration::leftJoin('mst_counter as c',function($join){
+                                $join->on('c.id','counter_registration.counter_id');
+                            })
+                            ->where('c.emergency',1)
+                            ->where('counter_registration.ou_fk',$orgId)
+                            ->where('counter_registration.counter_type',1)
+                            ->where('counter_registration.date_visit',date('Y-m-d'))
+                            ->where('counter_registration.is_next',0)
+                            ->where('counter_registration.is_skip',0)
+                            ->count();
+            $general_count = $general_counter;
+            $s_emergency_count = $s_emergency_counter;
+        }else if($counter_type == 1 && $emergency == 1){
+            $tes =2;
+            // check general and special
+            $general_counter = CounterRegistration::where('ou_fk',$orgId)
+                            ->where('counter_type',2)
+                            ->where('date_visit',date('Y-m-d'))
+                            ->where('is_next',0)
+                            ->where('is_skip',0)
+                            ->count();
+            
+            $special_counter = CounterRegistration::leftJoin('mst_counter as c',function($join){
+                                $join->on('c.id','counter_registration.counter_id');
+                            })
+                            ->where('c.emergency',0)
+                            ->where('counter_registration.ou_fk',$orgId)
+                            ->where('counter_registration.counter_type',1)
+                            ->where('counter_registration.date_visit',date('Y-m-d'))
+                            ->where('counter_registration.is_next',0)
+                            ->where('counter_registration.is_skip',0)
+                            ->count();
 
-        // $current_queue = array();
-        // foreach ($current_que as $key => $value) {
-        //     $current_queue[$key] = $value->current_queue;
-        // }
-        // $result_reg = CounterRegistration::where('counter_type',$counter_type);
-        // if($counter_type == 1){
-        //     $result_reg = $result_reg->where('counter_id',$counter_id);
-        // }
-        // $result_reg = $result_reg->where('ou_fk',$orgId)
-        //             ->where('date_visit',date('Y-m-d'))
-        //             ->where('is_next',0)
-        //             ->where('is_skip',0)
-        //             ->whereNotIn('queue_number',$current_queue)
-        //             ->orderBy('queue_number','ASC')
-        //             ->first();
-
-        // queue left remain
-        $queue_left = '';
-        if($emergency == 1 && $counter_type == 1){
-            $queue_left = CounterRegistration::where('ou_fk',$orgId)
-                ->where('counter_type',2)
-                ->where('is_next',0)
-                ->where('is_skip',0)
-                ->where('date_visit',date('Y-m-d'))
-                ->whereNull('counter_next')
-                ->whereNull('date_next')
-                ->whereNull('user_id')
-                ->count();
-        }else if($emergency == 0 && $counter_type == 1){
-            $queue_left = CounterRegistration::where('ou_fk',$orgId)
-                ->where('counter_type',2)
-                ->where('is_next',0)
-                ->where('is_skip',0)
-                ->where('date_visit',date('Y-m-d'))
-                ->whereNull('counter_next')
-                ->whereNull('date_next')
-                ->whereNull('user_id')
-                ->count();
+            $general_count = $general_counter;
+            $special_count = $special_counter;
         }else{
-            $queue_left = CounterRegistration::leftJoin('mst_counter as c',function($join){
-                    $join->on('c.id','counter_registration.counter_id');
-                })
-                ->where('c.emergency',1)
-                ->where('counter_registration.ou_fk',$orgId)
-                ->where('counter_registration.counter_type',1)
-                ->where('counter_registration.is_next',0)
-                ->where('counter_registration.is_skip',0)
-                ->where('date_visit',date('Y-m-d'))
-                ->whereNull('counter_registration.counter_next')
-                ->whereNull('counter_registration.date_next')
-                ->whereNull('counter_registration.user_id')
-                ->count();
+            $tes =3;
+            // check emergency and special  
+            $s_emergency_counter = CounterRegistration::leftJoin('mst_counter as c',function($join){
+                $join->on('c.id','counter_registration.counter_id');
+            })
+            ->where('c.emergency',1)
+            ->where('counter_registration.ou_fk',$orgId)
+            ->where('counter_registration.counter_type',1)
+            ->where('counter_registration.date_visit',date('Y-m-d'))
+            ->where('counter_registration.is_next',0)
+            ->where('counter_registration.is_skip',0)
+            ->count();
+
+            $special_counter = CounterRegistration::leftJoin('mst_counter as c',function($join){
+                $join->on('c.id','counter_registration.counter_id');
+            })
+            ->where('c.emergency',0)
+            ->where('counter_registration.ou_fk',$orgId)
+            ->where('counter_registration.counter_type',1)
+            ->where('counter_registration.date_visit',date('Y-m-d'))
+            ->where('counter_registration.is_next',0)
+            ->where('counter_registration.is_skip',0)
+            ->count();
+
+            $s_emergency_count = $s_emergency_counter;
+            $special_count = $special_counter;
         }
         $data = [
-            "queue_left" => $queue_left
+            'general_count' => $general_count,
+            's_emergency_count' => $s_emergency_count,
+            'special_count' => $special_count,
         ];
+
         return response()->json($data);
     }
 }

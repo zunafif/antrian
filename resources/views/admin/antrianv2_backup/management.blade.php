@@ -13,7 +13,7 @@ select, select.form-control {
   <div class="container-fluid">
     <div class="card">
       <div class="card-header card-header-primary" style="background: linear-gradient(60deg, #00B59D, #00584D);">
-        <h3 class="card-title"><b>Manajemen Antrian - {{$profile->name}}</b></h3>
+        <h3 class="card-title">Manajemen Antrian</h3>
       </div>
       <div class="card-body">
         <div id="typography">
@@ -31,18 +31,47 @@ select, select.form-control {
               </tr>
             </thead>
             <tbody>
+            @if($emergency == 0)
+              <tr id="ext_queue" style="background-color:{{($emergency != 1 && $counter_type == 2)? '#e74c3c' : 'white' }};color:{{($emergency != 1 && $counter_type == 2)? 'white' : 'black' }}; display:{{($filter === 'all' || count($counter_reg) == 0)? 'none' : ''}};" >
+              @if($emergency == 1 && $counter_type == 1)
+                <td>Antrian Umum</td>
+              @elseif($emergency == 0 && $counter_type == 1)
+                <td>Antrian Umum</td>
+              @else
+                <td>Antrian Emergency</td>
+              @endif
+                <td>{{date('Y-m-h')}}</td>
+                <td style="text-align:center;">
+                  <span id="ext_queue_take">Belum Ambil Antrian</span>
+                  <br>
+                  <br>
+                  <span style="color:{{($emergency != 1 && $counter_type == 2)? 'silver' : 'grey' }};">
+                    Tersisa <span id="ext_queue_left">-</span> Antrian
+                  </span>
+                </td>
+                
+                <td style="text-align:center">
+                  <button class="btn btn-primary" onclick="javascript:extnext({{$counter_type.','.$counter_id.','.$emergency}})" id="nextext"><i class="fa fa-play"></i> Next</button>
+                </td>
+                <td style="text-align:center">
+                  <button class="btn btn-success" onclick="javascript:extskip({{$counter_type.','.$counter_id.','.$emergency}})" id="skipext"><i class="fa fa-forward"></i> Skip</button>
+                </td>
+              </tr>
+            @endif
 
               @if($filter == 'all' || !isset($counter_reg_que->current_queue))
                 
               @else
                 
                 @foreach($counter_reg as $key => $val)
-                  <tr style="background-color:{{($val->emergency == 1)? '#e74c3c' : 'white' }};color:{{($val->emergency == 1)? 'white' : 'black' }}">
+                  <tr style="background-color:{{($emergency == 1)? '#e74c3c' : 'white' }};color:{{($emergency == 1)? 'white' : 'black' }}">
                     <td>
                       <h3>
-                        <b>
+                          <!-- {{($val->counter_type == 2)? 'Loket Umum': $val->counter_name }} -->
                           {{$val->counter_name}}
-                        </b>
+                          @if($emergency == 1)
+                            {{" (Emergency)"}}
+                          @endif
                       </h3>
                     </td>
                     <td>{{$val->date_visit}}</td>
@@ -51,49 +80,55 @@ select, select.form-control {
                       <td colspan="4"><button class="btn btn-danger ready-button" onclick="javascript:ready({{$val->counter_type}},{{$val->counter_id}})">READY</button></td>
                     @else
                       <input type="hidden" id="ready" value="ready">
-                        @if($val->counter_id == $counter_id)
-                          <td style="text-align:center;font-weight:bold;font-size:20px;" id="queue_number_{{$val->counter_id.'-'.$val->counter_type}}">{{$val->current_queue}}</td>
-                        @elseif($val->counter_type == 1 && $val->emergency == 0)
-                          <!-- <td style="text-align:center;font-weight:bold;font-size:20px;" id="queue_number_{{$val->counter_id.'-'.$val->counter_type}}">{{$val->current_queue}}</td> -->
-                          <td style="text-align:center;font-weight:bold;font-size:20px;" >
-                          <!-- <span id="queue_number_{{$val->emergency.'-'.$val->counter_type}}">{{$val->current_queue}}</span> -->
-                          <!-- <span id="queue_number_{{$val->emergency.'-'.$val->counter_type}}">Belum Ambil Antrian</span> -->
-                          <span id="queue_number_{{$val->emergency.'-'.$val->counter_type}}">1</span>
-                          <br>
-                          <br>
-                          <span style="font-weight:normal !important; font-size:16px !important" id="ext_queue_left_{{$val->emergency.'-'.$val->counter_type}}">-</span>
-                          </td>
-                        @else
-                          <td style="text-align:center;font-weight:bold;font-size:20px;" >
-                          <span id="queue_number_{{$val->emergency.'-'.$val->counter_type}}">1</span>
-                          <br>
-                          <br>
-                          <span style="font-weight:normal !important; font-size:16px !important" id="ext_queue_left_{{$val->emergency.'-'.$val->counter_type}}">-</span>
-                          </td>
-                        @endif
+                      <td style="text-align:center;font-weight:bold;font-size:20px;" id="queue_number_{{$val->counter_id.'-'.$val->counter_type}}">{{$val->current_queue}}</td>
                       <td style="text-align:center">
-                        @if($val->counter_id == $counter_id)
-                          <button class="btn btn-info" onclick="javascript:next({{$val->counter_type}},{{($filter == 'all')? $val->counter_id : $filter }})" id="next_{{$val->counter_id.'-'.$val->counter_type}}"><i class="fa fa-play"></i> Next</button>
-                        @elseif($val->counter_type == 1 && $val->emergency == 0)
-                        <button class="btn btn-primary" onclick="javascript:extnext({{$val->counter_type}},{{$val->emergency}},{{$val->counter_id}},{{$counter_id}})" id="next_{{$val->emergency.'-'.$val->counter_type}}"><i class="fa fa-play"></i> Next</button>
-                        @else
-                          <button class="btn btn-primary" onclick="javascript:extnext({{$val->counter_type}},{{$val->emergency}},{{$val->counter_id}},{{$counter_id}})" id="next_{{$val->emergency.'-'.$val->counter_type}}"><i class="fa fa-play"></i> Next</button>
-                        @endif
+                        <button class="btn btn-primary" onclick="javascript:next({{$val->counter_type}},{{($filter == 'all')? $val->counter_id : $filter }})" id="next_{{$val->counter_id.'-'.$val->counter_type}}"><i class="fa fa-play"></i> Next</button>
                       </td>
                       <td style="text-align:center">
-                        @if($val->counter_id == $counter_id)
-                          <button class="btn btn-success" onclick="javascript:skip({{$val->counter_type}},{{($filter == 'all')? $val->counter_id : $filter }})" id="skip_{{$val->counter_id.'-'.$val->counter_type}}"><i class="fa fa-forward"></i> Skip</button>
-                        @elseif($val->counter_type == 1 && $val->emergency == 0)
-                        <button class="btn btn-success" onclick="javascript:extskip({{$val->counter_type}},{{$val->emergency}},{{$val->counter_id}})" id="skip_{{$val->emergency.'-'.$val->counter_type}}"><i class="fa fa-forward"></i> Skip</button>
-                        @else
-                          <button class="btn btn-success" onclick="javascript:extskip({{$val->counter_type}},{{$val->emergency}},{{$val->counter_id}})" id="skip_{{$val->emergency.'-'.$val->counter_type}}"><i class="fa fa-forward"></i> Skip</button>
-                        @endif
+                        <button class="btn btn-success" onclick="javascript:skip({{$val->counter_type}},{{($filter == 'all')? $val->counter_id : $filter }})" id="skip_{{$val->counter_id.'-'.$val->counter_type}}"><i class="fa fa-forward"></i> Skip</button>
                       </td>
                     @endif
                   </tr>
                 @endforeach
               @endif
 
+              @if($emergency == 1)
+              <tr id="ext_queue" style="background-color:{{($emergency != 1 && $counter_type == 2)? '#e74c3c' : 'white' }};color:{{($emergency != 1 && $counter_type == 2)? 'white' : 'black' }}; display:{{($filter === 'all' || count($counter_reg) == 0)? 'none' : ''}};" >
+              @if($emergency == 1 && $counter_type == 1)
+                <td>Antrian Umum</td>
+              @elseif($emergency == 0 && $counter_type == 1)
+                <td>Antrian Umum</td>
+              @else
+                <td>Antrian Emergency</td>
+              @endif
+                <td>{{date('Y-m-h')}}</td>
+                <td style="text-align:center;">
+                  <span id="ext_queue_take">Belum Ambil Antrian</span>
+                  <br>
+                  <br>
+                  <span style="color:{{($emergency != 1 && $counter_type == 2)? 'silver' : 'grey' }};">
+                    Tersisa <span id="ext_queue_left">-</span> Antrian
+                  </span>
+                </td>
+                
+                <td style="text-align:center">
+                  <button class="btn btn-primary" onclick="javascript:extnext({{$counter_type.','.$counter_id.','.$emergency}})" id="nextext"><i class="fa fa-play"></i> Next</button>
+                </td>
+                <td style="text-align:center">
+                  <button class="btn btn-success" onclick="javascript:extskip({{$counter_type.','.$counter_id.','.$emergency}})" id="skipext"><i class="fa fa-forward"></i> Skip</button>
+                </td>
+              </tr>
+              @endif
+
+              @if($emergency == 0 && $counter_type == 1)
+                <tr>
+                  <td>Loket</td>
+                  <td>Tanggal Kunjungan</td>
+                  <td style="text-align:center;">Antrian Kunjungan</td>
+                  <td style="text-align:center;">Next</td>
+                  <td style="text-align:center;">Stop</td>
+                </tr>
+              @endif
             </tbody>
           </table>
         </div>
@@ -156,30 +191,20 @@ select, select.form-control {
     }
 
     function extQueue(id,type,emergency){
-      text = ' Antrian Belum Terlayani';
       $.ajax({
         method: "POST",
         url: "{{route('queuefov2.checkext')}}",
         data: {_token:"{{csrf_token()}}", counter_id:id, counter_type:type, counter_emergency:emergency},
         success: function(data){
-          if(emergency == 1 && type == 1){
-            $('#ext_queue_left_0-2').text('');
-            $('#ext_queue_left_0-2').text(data.general_count+text);
-            $('#ext_queue_left_0-1').text('');
-            $('#ext_queue_left_0-1').text(data.special_count+text);
-          }else if(emergency == 0 && type == 1){
-            $('#ext_queue_left_0-2').text('');
-            $('#ext_queue_left_0-2').text(data.general_count+text);
-            $('#ext_queue_left_1-1').text('');
-            $('#ext_queue_left_1-1').text(data.s_emergency_count+text);
-          }else{
-            $('#ext_queue_left_0-1').text('');
-            $('#ext_queue_left_0-1').text(data.special_count+text);
-            $('#ext_queue_left_1-1').text('');
-            $('#ext_queue_left_1-1').text(data.s_emergency_count+text);
+          $('#ext_queue_left').text('');
+          $('#ext_queue_left').text(data.queue_left);
+          if(data.queue_left == 0){
+            $('#nextext').prop('disabled',true);
+            $('#skipext').prop('disabled',true);
+          }else if(data.queue_left > 0 && $('#nextext').prop('disabled') == true){
+            $('#nextext').prop('disabled',false);
+            $('#skipext').prop('disabled',false);
           }
-          
-          
         }
       })
     }
@@ -210,7 +235,7 @@ select, select.form-control {
               method: "POST",
               data: {_token:"{{csrf_token()}}",counter_type:type,counter_id:counter,common_counter: fix_counter,queue:queue},
               success: function(data){
-                console.log(data);
+                
                 if(data.count == null){
                     alert('Antrian Sudah Habis');
                     disable_button(type,counter);
@@ -385,20 +410,15 @@ select, select.form-control {
       $('.par-notif').val(0);
     })
 
-    function extnext(counter_type,emergency,counter_id,counter_next){
-      var queue = $('#queue_number_'+emergency+'-'+counter_type).text();
+    function extnext(counter_type,counter_id,emergency){
+      console.log(counter_type,counter_id,emergency);
       $.ajax({
         url: "{{route('queuefov2.extnext')}}",
         method: 'POST',
-        data: {_token:'{{csrf_token()}}', counter_type:counter_type, counter_id:counter_id, emergency:emergency, queue:queue, counter_next:counter_next},
+        data: {_token:'{{csrf_token()}}', counter_type:counter_type, counter_id:counter_id, emergency:emergency},
         success: function(data){
-          console.log(data);
-          console.log('#queue_number_'+emergency+'-'+counter_type);
-          if(data.count != null){
-            $('#queue_number_'+emergency+'-'+counter_type).text(data.result.current_queue)
-          }else{
-            alert('Antrian Habis !')
-          }
+          $('#ext_queue_take').text('');
+          $('#ext_queue_take').text(data.current_queue);
         }
       })
     }
