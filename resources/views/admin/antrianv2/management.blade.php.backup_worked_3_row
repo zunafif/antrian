@@ -53,22 +53,31 @@ select, select.form-control {
                       <input type="hidden" id="ready" value="ready">
                         @if($val->counter_id == $counter_id)
                           <td style="text-align:center;font-weight:bold;font-size:20px;" id="queue_number_{{$val->counter_id.'-'.$val->counter_type}}">{{$val->current_queue}}</td>
-                        @else
+                        @elseif($val->counter_type == 1 && $val->emergency == 0)
                           <!-- <td style="text-align:center;font-weight:bold;font-size:20px;" id="queue_number_{{$val->counter_id.'-'.$val->counter_type}}">{{$val->current_queue}}</td> -->
                           <td style="text-align:center;font-weight:bold;font-size:20px;" >
                           <!-- <span id="queue_number_{{$val->emergency.'-'.$val->counter_type}}">{{$val->current_queue}}</span> -->
                           <!-- <span id="queue_number_{{$val->emergency.'-'.$val->counter_type}}">Belum Ambil Antrian</span> -->
-                          <span id="queue_number_{{$val->counter_id.'-'.$val->counter_type}}">1</span>
+                          <span id="queue_number_{{$val->emergency.'-'.$val->counter_type}}">1</span>
                           <br>
                           <br>
-                          <span style="font-weight:normal !important; font-size:16px !important" id="ext_queue_left_{{$val->counter_id}}">-</span>
+                          <span style="font-weight:normal !important; font-size:16px !important" id="ext_queue_left_{{$val->emergency.'-'.$val->counter_type}}">-</span>
+                          </td>
+                        @else
+                          <td style="text-align:center;font-weight:bold;font-size:20px;" >
+                          <span id="queue_number_{{$val->emergency.'-'.$val->counter_type}}">1</span>
+                          <br>
+                          <br>
+                          <span style="font-weight:normal !important; font-size:16px !important" id="ext_queue_left_{{$val->emergency.'-'.$val->counter_type}}">-</span>
                           </td>
                         @endif
                       <td style="text-align:center">
                         @if($val->counter_id == $counter_id)
-                          <button class="btn btn-info" onclick="javascript:next({{$val->counter_type}},{{$val->counter_id}})" id="next_{{$val->counter_id.'-'.$val->counter_type}}"><i class="fa fa-play"></i> Next</button>
+                          <button class="btn btn-info" onclick="javascript:next({{$val->counter_type}},{{($filter == 'all')? $val->counter_id : $filter }})" id="next_{{$val->counter_id.'-'.$val->counter_type}}"><i class="fa fa-play"></i> Next</button>
+                        @elseif($val->counter_type == 1 && $val->emergency == 0)
+                        <button class="btn btn-primary" onclick="javascript:extnext({{$val->counter_type}},{{$val->emergency}},{{$val->counter_id}},{{$counter_id}})" id="next_{{$val->emergency.'-'.$val->counter_type}}"><i class="fa fa-play"></i> Next</button>
                         @else
-                          <button class="btn btn-primary" onclick="javascript:extnext({{$val->counter_type}},{{$val->emergency}},{{$val->counter_id}},{{$counter_id}})" id="next_{{$val->counter_id.'-'.$val->counter_type}}"><i class="fa fa-play"></i> Next</button>
+                          <button class="btn btn-primary" onclick="javascript:extnext({{$val->counter_type}},{{$val->emergency}},{{$val->counter_id}},{{$counter_id}})" id="next_{{$val->emergency.'-'.$val->counter_type}}"><i class="fa fa-play"></i> Next</button>
                         @endif
                       </td>
                       <td style="text-align:center">
@@ -153,12 +162,26 @@ select, select.form-control {
         url: "{{route('queuefov2.checkext')}}",
         data: {_token:"{{csrf_token()}}", counter_id:id, counter_type:type, counter_emergency:emergency},
         success: function(data){
-          for (let i = 0; i < data.queue_left.length; i++) {
-            $('#ext_queue_left_'+data.queue_left[i]['id']).text('');
-            $('#ext_queue_left_'+data.queue_left[i]['id']).text(data.queue_left[i]['queue_left']+text);
+          if(emergency == 1 && type == 1){
+            $('#ext_queue_left_0-2').text('');
+            $('#ext_queue_left_0-2').text(data.general_count+text);
+            $('#ext_queue_left_0-1').text('');
+            $('#ext_queue_left_0-1').text(data.special_count+text);
+          }else if(emergency == 0 && type == 1){
+            $('#ext_queue_left_0-2').text('');
+            $('#ext_queue_left_0-2').text(data.general_count+text);
+            $('#ext_queue_left_1-1').text('');
+            $('#ext_queue_left_1-1').text(data.s_emergency_count+text);
+          }else{
+            $('#ext_queue_left_0-1').text('');
+            $('#ext_queue_left_0-1').text(data.special_count+text);
+            $('#ext_queue_left_1-1').text('');
+            $('#ext_queue_left_1-1').text(data.s_emergency_count+text);
           }
+          
+          
         }
-      });
+      })
     }
 
     function checkPar(){
@@ -170,7 +193,7 @@ select, select.form-control {
     }
 
     function next(type,counter){
-      console.log(type,counter);
+      // console.log(type,counter);
       $('#disable-button').val(0);
       // console.log($('#disable-button').val());
         if(counter == 0){
@@ -363,16 +386,16 @@ select, select.form-control {
     })
 
     function extnext(counter_type,emergency,counter_id,counter_next){
-      var queue = $('#queue_number_'+counter_id+'-'+counter_type).text();
+      var queue = $('#queue_number_'+emergency+'-'+counter_type).text();
       $.ajax({
         url: "{{route('queuefov2.extnext')}}",
         method: 'POST',
         data: {_token:'{{csrf_token()}}', counter_type:counter_type, counter_id:counter_id, emergency:emergency, queue:queue, counter_next:counter_next},
         success: function(data){
           console.log(data);
-          console.log('#queue_number_'+counter_id+'-'+counter_type);
+          console.log('#queue_number_'+emergency+'-'+counter_type);
           if(data.count != null){
-            $('#queue_number_'+counter_id+'-'+counter_type).text(data.result.current_queue)
+            $('#queue_number_'+emergency+'-'+counter_type).text(data.result.current_queue)
           }else{
             alert('Antrian Habis !')
           }
