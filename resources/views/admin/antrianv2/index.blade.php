@@ -95,11 +95,14 @@
                 <div style="background-color:white;padding:55px 7px;text-align:center;border-radius:10px;">
                   <h3 style="font-size:35px;margin-bottom:50px;">
                     <b>
+		    (Loket {{$val->code_alpha}})
+		    </b>
+		    <br/>
                     {{$val->name}}
                     @if($val->counter_type == 2)
                       {{Config::get('antrian.general_counter_name')}}
                     @endif
-                    </b>
+                    
                   </h3>
                   <audio id="audio_counter-{{$val->counter_type.'-'.$val->id}}" src="{{asset($val->path)}}" allow=”autoplay” mute='muted'></audio>
                   <h2 style="font-size:55px;font-weight:bold;" id="antrian_{{$val->id.'-'.$val->counter_type}}">

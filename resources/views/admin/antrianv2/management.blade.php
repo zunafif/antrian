@@ -13,7 +13,7 @@ select, select.form-control {
   <div class="container-fluid">
     <div class="card">
       <div class="card-header card-header-primary" style="background: linear-gradient(60deg, #00B59D, #00584D);">
-        <h3 class="card-title"><b>Manajemen Antrian - {{(isset($profile->name))? $profile->name : ''}}</b></h3>
+        <h3 class="card-title"><b>Manajemen Antrian - {{(isset($profile->name))? $profile->name.'('.$profile->code_alpha.')' : ''}}</b></h3>
       </div>
       <div class="card-body">
         <div id="typography">
@@ -41,7 +41,7 @@ select, select.form-control {
                     <td>
                       <h3>
                         <b>
-                          {{$val->counter_name}}
+                          ({{$val->code_alpha}}){{$val->counter_name}}
                         </b>
                       </h3>
                     </td>
@@ -98,7 +98,7 @@ select, select.form-control {
             <select name="filter" id="filter" class="form-control">
               <option value="" {{($filter == 'all')? 'selected':''}}>Pilih terlebih dahulu</option>
               @foreach($counter as $data)
-                  <option value="{{$data->id.'-'.$data->counter_type.'-'.$data->emergency}}" {{($data->id == $filter)? 'selected':''}}>{{$data->name}}</option>
+                  <option value="{{$data->id.'-'.$data->counter_type.'-'.$data->emergency}}" {{($data->id == $filter)? 'selected':''}}>{{$data->name}} ({{$data->code_alpha}})</option>
               @endforeach
             </select>
           </div>
