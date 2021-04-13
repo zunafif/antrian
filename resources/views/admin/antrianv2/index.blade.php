@@ -95,10 +95,10 @@
                 <div style="background-color:white;padding:55px 7px;text-align:center;border-radius:10px;">
                   <h3 style="font-size:35px;margin-bottom:50px;">
                     <b>
-		    (Loket {{$val->code_alpha}})
+		    Loket {{$val->code_alpha}}
 		    </b>
 		    <br/>
-                    {{$val->name}}
+                    <!-- {{$val->name}} -->
                     @if($val->counter_type == 2)
                       {{Config::get('antrian.general_counter_name')}}
                     @endif
