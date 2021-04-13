@@ -61,10 +61,27 @@ Route::group(['middleware' => 'web'], function(){
             Route::post('ready','QueuefoController@ready')->name('queuefo.ready');
             Route::post('set_fo','QueuefoController@setFoQueue')->name('queuefo.set_fo');
         });
+        Route::group(['prefix' => 'manajemen_antrian2'], function () {
+            Route::get('{filter?}', 'Queuefov2Controller@index')->name('queuefov2.read');
+            Route::post('checkData', 'Queuefov2Controller@checkData')->name('queuefov2.check');
+            Route::post('next','Queuefov2Controller@next')->name('queuefov2.next');
+            Route::post('skip','Queuefov2Controller@skip')->name('queuefov2.skip');
+            Route::post('ready','Queuefov2Controller@ready')->name('queuefov2.ready');
+            Route::post('set_fo','Queuefov2Controller@setFoQueue')->name('queuefov2.set_fo');
+            Route::post('checkExtData', 'Queuefov2Controller@checkExtData')->name('queuefov2.checkext');
+            Route::post('extNext', 'Queuefov2Controller@extNext')->name('queuefov2.extnext');
+            Route::post('extSkip', 'Queuefov2Controller@extSkip')->name('queuefov2.extskip');
+        });
+        
     });
 });
 
 Route::group(['prefix' => 'antrian'], function () {
     Route::get('{filter?}', 'QueueinfoController@index')->name('queueinfo.read');
     Route::post('checkData', 'QueueinfoController@checkData')->name('queueinfo.check');
+});
+
+Route::group(['prefix' => 'antrianv2'], function () {
+    Route::get('{filter?}', 'Queueinfov2Controller@index')->name('queueinfov2.read');
+    Route::post('checkData', 'Queueinfov2Controller@checkData')->name('queueinfov2.check');
 });
