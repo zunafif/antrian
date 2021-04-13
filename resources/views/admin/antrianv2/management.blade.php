@@ -13,7 +13,7 @@ select, select.form-control {
   <div class="container-fluid">
     <div class="card">
       <div class="card-header card-header-primary" style="background: linear-gradient(60deg, #00B59D, #00584D);">
-        <h3 class="card-title"><b>Manajemen Antrian - {{$profile->name}}</b></h3>
+        <h3 class="card-title"><b>Manajemen Antrian - {{(isset($profile->name))? $profile->name : ''}}</b></h3>
       </div>
       <div class="card-body">
         <div id="typography">
