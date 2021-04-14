@@ -41,8 +41,9 @@ select, select.form-control {
                     <td>
                       <h3>
                         <b>
-                          ({{$val->code_alpha}}){{$val->counter_name}}
-                        </b>
+                          <!-- ({{$val->code_alpha}}){{$val->counter_name}} -->
+                         ({{$val->name}}) {{$val->description}}
+			</b>
                       </h3>
                     </td>
                     <td>{{$val->date_visit}}</td>

@@ -86,7 +86,9 @@ class Queuefov2Controller extends Controller
                     'counter_registration_queue.counter_id as counter_id',
                     'counter_registration_queue.date_visit as date_visit',
                     'c.emergency',
-		    'c.code_alpha'
+		    'c.code_alpha',
+		    'c.name',
+		    'c.description'
                 )
                 ->where('counter_registration_queue.ou_fk',$orgId)
                 ->where('c.emergency',1)
@@ -106,7 +108,9 @@ class Queuefov2Controller extends Controller
                         'counter_registration_queue.counter_id as counter_id',
                         'counter_registration_queue.date_visit as date_visit',
                         'c.emergency',
-			'c.code_alpha'
+			'c.code_alpha',
+			'c.name',
+			'c.description'
                     );
                     if($filter !== 'all'){
                         $counter_reg = $counter_reg->where('counter_registration_queue.counter_id','like',$counterexp[0]);
@@ -139,7 +143,9 @@ class Queuefov2Controller extends Controller
                 'counter_registration_queue.counter_id as counter_id',
                 'counter_registration_queue.date_visit as date_visit',
                 'c.emergency',
-		'c.code_alpha'
+		'c.code_alpha',
+		'c.name',
+		'c.description'
             )
             ->where('counter_registration_queue.ou_fk',$orgId)
             ->where('c.emergency',0)
@@ -162,7 +168,9 @@ class Queuefov2Controller extends Controller
                 'counter_registration_queue.counter_id as counter_id',
                 'counter_registration_queue.date_visit as date_visit',
                 'c.emergency',
-		'c.code_alpha'
+		'c.code_alpha',
+		'c.name',
+		'c.description'
             )
             ->where('counter_registration_queue.ou_fk',$orgId)
             ->where('c.emergency',0)

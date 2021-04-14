@@ -95,7 +95,7 @@
                 <div style="background-color:white;padding:55px 7px;text-align:center;border-radius:10px;">
                   <h3 style="font-size:35px;margin-bottom:50px;">
                     <b>
-		    Loket {{$val->code_alpha}}
+		    Loket {{$val->name}}
 		    </b>
 		    <br/>
                     <!-- {{$val->name}} -->
