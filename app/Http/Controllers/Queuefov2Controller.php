@@ -292,6 +292,8 @@ class Queuefov2Controller extends Controller
         
         $data = [
             'profile' => $profile,
+            'count_counter' => count($counter),
+            'count_counter_reg' => count($counter_reg),
             'counter' => $counter,
             'counter_reg' => $counter_reg,
             'filter' => $filter,
@@ -346,6 +348,17 @@ class Queuefov2Controller extends Controller
             'counter_reg_queue' => $counter_reg_que
         ];
         
+        return response()->json($data);
+    }
+
+    function checkCounter(Request $request){
+        $orgId = Auth::user()->getOrganizationUnitId();
+        $counter_reg = CounterQueue::where('date_visit',date('Y-m-d'))
+                        ->where('ou_fk',$orgId)
+                        ->count();
+        $data = [
+            'current_counter' => $counter_reg
+        ];
         return response()->json($data);
     }
 
@@ -440,59 +453,82 @@ class Queuefov2Controller extends Controller
         $counter_type = $request->counter_type;
         $counter_id = $request->counter_id;
         // $request->common_counter;
-        
+        date_default_timezone_set("Asia/Jakarta");
         $queue = $request->queue;
         $orgId = Auth::user()->getOrganizationUnitId();
+        // $res = null;
+        // if($counter_type == 2){
+        //     $res = CounterQueue::where('ou_fk',$orgId)
+        //         ->where('counter_type', 2)
+        //         ->where('current_queue',$queue)
+        //         ->where('date_visit',date('Y-m-d'))
+        //         ->first();
+        // }
+        
         $result = CounterRegistration::where('counter_type',$counter_type)
-                ->where('counter_type',$counter_type)
-                ->where('queue_number',$qeueu)
+                ->where('queue_number',$queue)
                 ->where('date_visit',date('Y-m-d'))
-                ->where('ou_fk',$ou_fk)
-                ->update([
-                    'is_skip' => 1,
-                    'user_id' => Auth::user()->id,
-                    'current_code_alpha' => $result_reg->code_alpha,
-                    'counter_next' => $counter_id
-                ]);
+                ->where('ou_fk',$orgId);
+                if($counter_type == 1){
+                    $result = $result->where('counter_id',$counter_id);
+                }
+                // if($res == null){
+                    $result = $result->update([
+                        'is_skip' => 1,
+                        'date_next' => date("Y-m-d H:i:s"),
+                        'user_id' => Auth::user()->id,
+                        'counter_next' => $counter_id
+                    ]);
+                // }
+                
         $current_que = '';
         if($counter_type == 2){
-            $current_que = CounterQueue::where('counter_type',$counter_type)
-                ->where('counter_type',$counter_type)
-                ->where('ou_fk',$ou_fk)
-                ->where('date_visit',date('Y-m-d'))
+            $current_que = CounterQueue::leftJoin('mst_counter as c',function($join){
+                    $join->on('c.code_alpha','counter_registration_queue.current_code_alpha');
+                })
+                ->where('c.counter_type',$counter_type)
+                ->where('counter_registration_queue.ou_fk',$orgId)
+                ->where('counter_registration_queue.date_visit',date('Y-m-d'))
                 ->get();
         }else{
-            $current_que = CounterQueue::where('counter_type',$counter_type)
-                ->where('counter_id',$counter_id)
-                ->where('counter_type',$counter_type)
-                ->where('ou_fk',$ou_fk)
-                ->where('date_visit',date('Y-m-d'))
+            $current_que = CounterQueue::leftJoin('mst_counter as c',function($join){
+                    $join->on('c.code_alpha','counter_registration_queue.current_code_alpha');
+                })
+                ->where('c.counter_type',$counter_type)
+                ->where('c.id',$counter_id)
+                ->where('counter_registration_queue.ou_fk',$orgId)
+                ->where('counter_registration_queue.date_visit',date('Y-m-d'))
                 ->get();
         }
-
+        
         $current_queue = array();
         foreach ($current_que as $key => $value) {
             $current_queue[$key] = $value->current_queue;
         }
-        
-        $result_reg = CounterRegistration::where('counter_type',$counter_type)
-                    ->where('ou_fk',$ou_fk)
+        $result_reg = CounterRegistration::where('counter_type',$counter_type);
+        if($counter_type == 1){
+            $result_reg = $result_reg->where('counter_id',$counter_id);
+        }
+        $result_reg = $result_reg->where('ou_fk',$orgId)
                     ->where('date_visit',date('Y-m-d'))
                     ->where('is_next',0)
                     ->where('is_skip',0)
                     ->whereNotIn('queue_number',$current_queue)
                     ->orderBy('queue_number','ASC')
                     ->first();
-        
-        $result_next = CounterQueue::where('counter_type',$counter_type)
-                    ->where('counter_id',$counter_id)
-                    ->where('counter_type',$counter_type)
-                    ->where('ou_fk',$ou_fk)
-                    ->where('date_visit',date('Y-m-d'))
-                    ->update([
-                        'current_queue' => $result_reg->queue_number
-                    ]);
-        $result_next = CounterRegistration::find($result_reg->id);
+        $result_next = '';
+        if($result_reg != null){
+            $result_next = CounterQueue::where('counter_type',$counter_type)
+                        ->where('counter_id',$counter_id)
+                        ->where('counter_type',$counter_type)
+                        ->where('ou_fk',$orgId)
+                        ->where('date_visit',date('Y-m-d'))
+                        ->update([
+                            'current_queue' => $result_reg->queue_number,
+                            'current_code_alpha' => $result_reg->code_alpha
+                        ]);
+            $result_next = CounterRegistration::find($result_reg->id);
+        }
         $data = [
             'result' => $result_next,
             'count' => $result_reg
@@ -669,8 +705,104 @@ class Queuefov2Controller extends Controller
         return response()->json($data);
     }
 
-    function extSkip(){
+    function extskip(Request $request){
+        $counter_type = $request->counter_type;
+        $emergency = $request->emergency;
+        $counter_id = $request->counter_id;
+        $counter_next = $request->counter_next;
+        
+        date_default_timezone_set("Asia/Jakarta");
+        $queue = $request->queue;
+        $orgId = Auth::user()->getOrganizationUnitId();
+        
+        $result = CounterRegistration::where('counter_type',$counter_type)
+                ->where('queue_number',$queue)
+                ->where('date_visit',date('Y-m-d'))
+                ->where('ou_fk',$orgId);
+                if($counter_type == 1){
+                    $result = $result->where('counter_id',$counter_id);
+                }
 
+                // if($res == null){    
+                    $result = $result->update([
+                        'is_skip' => 1,
+                        'date_next' => date("Y-m-d H:i:s"),
+                        'user_id' => Auth::user()->id,
+                        'counter_next' => $counter_next
+                    ]);
+                // }
+        $result_current = CounterRegistration::where('counter_type',$counter_type)
+                ->where('queue_number',$queue)
+                ->where('date_visit',date('Y-m-d'))
+                ->where('ou_fk',$orgId);
+                // if($counter_type == 1){
+                $result_current = $result_current->where('counter_id',$counter_id);
+                // }
+                $result_current = $result_current->first();
+        
+        $current_que = '';
+        if($counter_type == 2){
+            $current_que = CounterQueue::where('current_code_alpha',$result_current->code_alpha)
+                // ->where('counter_type',$counter_type)
+                ->where('ou_fk',$orgId)
+                ->where('date_visit',date('Y-m-d'))
+                ->get();
+        }else{
+            $current_que = CounterQueue::leftJoin('mst_counter as c', function($join){
+                    $join->on('c.id','counter_registration_queue.counter_id');
+                })
+                // ->where('counter_registration_queue.counter_type',$counter_type)
+                // ->where('c.emergency',$emergency)
+                ->where('counter_registration_queue.current_code_alpha',$result_current->code_alpha)
+                ->where('counter_registration_queue.ou_fk',$orgId)
+                ->where('counter_registration_queue.date_visit',date('Y-m-d'))
+                ->get();
+        }
+
+        $current = '';
+        foreach ($current_que as $key => $value) {
+            $current = $current."concat('".$value->current_code_alpha."',".$value->current_queue.")";
+            $current = $current.',';
+        }
+        $current = rtrim($current, ", ");
+
+        $result_reg = CounterRegistration::select(
+                        'counter_registration.queue_number as queue_number',
+                        'counter_registration.code_alpha as code_alpha'
+                    )
+                    ->where('counter_registration.ou_fk',$orgId)
+                    ->where('counter_registration.date_visit',date('Y-m-d'))
+                    ->where('counter_id',$counter_id)
+                    ->where('is_next',0)
+                    ->where('is_skip',0);
+                    if(count($current_que) != 0){
+                        $result_reg = $result_reg->whereRaw('(concat(counter_registration.code_alpha,counter_registration.queue_number)) not in ('.$current.')');
+                    }
+                    $result_reg = $result_reg->orderBy('counter_registration.queue_number','ASC')
+                    ->first();
+    
+
+        $result_next = '';
+        if($result_reg != null){
+            $result_next = CounterQueue::where('counter_id',$counter_next)
+                        ->where('ou_fk',$orgId)
+                        ->where('date_visit',date('Y-m-d'))
+                        ->update([
+                            'current_queue' => $result_reg->queue_number,
+                            'current_code_alpha' => $result_reg->code_alpha
+                        ]);
+            $result_next = CounterQueue::where('counter_id',$counter_next)
+                        ->where('ou_fk',$orgId)
+                        ->where('date_visit',date('Y-m-d'))
+                        ->first();
+        }
+        
+        $data = [
+            'result' => $result_next,
+            'count' => $result_reg
+        ];
+
+        return response()->json($data);
     }
 
     function checkExtData(Request $request){

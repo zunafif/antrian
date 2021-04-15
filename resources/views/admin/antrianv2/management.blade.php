@@ -14,6 +14,8 @@ select, select.form-control {
     <div class="card">
       <div class="card-header card-header-primary" style="background: linear-gradient(60deg, #00B59D, #00584D);">
         <h3 class="card-title"><b>Manajemen Antrian - {{(isset($profile->name))? $profile->name.'('.$profile->code_alpha.')' : ''}}</b></h3>
+        <input type="hidden" id="final_counter" value="{{$count_counter}}">
+        <input type="hidden" id="current_counter" value="{{$count_counter_reg}}">
       </div>
       <div class="card-body">
         <div id="typography">
@@ -27,7 +29,7 @@ select, select.form-control {
                 <th>Tanggal Kunjungan</th>
                 <th style="text-align:center;">Antrian Kunjungan</th>
                 <th style="text-align:center;">Next</th>
-                <th style="text-align:center;">Stop</th>
+                <th style="text-align:center;">Skip</th>
               </tr>
             </thead>
             <tbody>
@@ -53,7 +55,12 @@ select, select.form-control {
                     @else
                       <input type="hidden" id="ready" value="ready">
                         @if($val->counter_id == $counter_id)
-                          <td style="text-align:center;font-weight:bold;font-size:20px;" id="queue_number_{{$val->counter_id.'-'.$val->counter_type}}">{{$val->current_queue}}</td>
+                          <td style="text-align:center;font-weight:bold;font-size:20px;">
+                          <span id="queue_number_{{$val->counter_id.'-'.$val->counter_type}}">{{$val->current_queue}}</span>
+                          <br>
+                          <br>
+                          <span style="font-weight:normal !important; font-size:16px !important" id="queue_left_{{$val->counter_id}}">-</span>
+                          </td>
                         @else
                           <!-- <td style="text-align:center;font-weight:bold;font-size:20px;" id="queue_number_{{$val->counter_id.'-'.$val->counter_type}}">{{$val->current_queue}}</td> -->
                           <td style="text-align:center;font-weight:bold;font-size:20px;" >
@@ -74,11 +81,9 @@ select, select.form-control {
                       </td>
                       <td style="text-align:center">
                         @if($val->counter_id == $counter_id)
-                          <button class="btn btn-success" onclick="javascript:skip({{$val->counter_type}},{{($filter == 'all')? $val->counter_id : $filter }})" id="skip_{{$val->counter_id.'-'.$val->counter_type}}"><i class="fa fa-forward"></i> Skip</button>
-                        @elseif($val->counter_type == 1 && $val->emergency == 0)
-                        <button class="btn btn-success" onclick="javascript:extskip({{$val->counter_type}},{{$val->emergency}},{{$val->counter_id}})" id="skip_{{$val->emergency.'-'.$val->counter_type}}"><i class="fa fa-forward"></i> Skip</button>
+                          <button class="btn btn-success" onclick="javascript:skip({{$val->counter_type}},{{$val->counter_id}})" id="skip_{{$val->counter_id.'-'.$val->counter_type}}"><i class="fa fa-forward"></i> Skip</button>
                         @else
-                          <button class="btn btn-success" onclick="javascript:extskip({{$val->counter_type}},{{$val->emergency}},{{$val->counter_id}})" id="skip_{{$val->emergency.'-'.$val->counter_type}}"><i class="fa fa-forward"></i> Skip</button>
+                        <button class="btn btn-primary" onclick="javascript:extskip({{$val->counter_type}},{{$val->emergency}},{{$val->counter_id}},{{$counter_id}})" id="skip_{{$val->counter_id.'-'.$val->counter_type}}"><i class="fa fa-forward"></i> Skip</button>
                         @endif
                       </td>
                     @endif
@@ -122,6 +127,15 @@ select, select.form-control {
 
       }else{
         setInterval(function(){checkData(filter);}, 2000);
+      }
+
+      var final_counter = $('#final_counter').val();
+      var current_counter = $('#current_counter').val();
+      
+      if((current_counter != final_counter) && filter != 'all'){
+        setInterval(function(){checkCounter(filter);}, 2000);
+      }else{
+
       }
       
       setInterval(function(){checkPar(filter);}, 2000);
@@ -381,8 +395,37 @@ select, select.form-control {
       })
     }
 
-    function extskip(counter_type,counter_id,emergency){
-      
+    function extskip(counter_type,emergency,counter_id,counter_next){
+      var queue = $('#queue_number_'+counter_id+'-'+counter_type).text();
+      $.ajax({
+        url: "{{route('queuefov2.extskip')}}",
+        method: 'POST',
+        data: {_token:'{{csrf_token()}}', counter_type:counter_type, counter_id:counter_id, emergency:emergency, queue:queue, counter_next:counter_next},
+        success: function(data){
+          console.log(data);
+          console.log('#queue_number_'+counter_id+'-'+counter_type);
+          if(data.count != null){
+            $('#queue_number_'+counter_id+'-'+counter_type).text(data.result.current_queue)
+          }else{
+            alert('Antrian Habis !')
+          }
+        }
+      })
+    }
+
+    function checkCounter(){
+      var current_counter = $('#current_counter').val();
+      var final_counter = $('#final_counter').val();
+      $.ajax({
+        url:"{{route('queuefov2.checkcounter')}}",
+        method:'POST',
+        data:{_token:'{{csrf_token()}}'},
+        success:function(data){
+          if(data.current_counter != current_counter){
+            location.reload();
+          }
+        }
+      })
     }
 </script>
 @endsection
