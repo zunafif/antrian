@@ -842,4 +842,20 @@ class Queuefov2Controller extends Controller
 
         return response()->json($data);
     }
+
+    function checkQueue(Request $request){
+        $orgId = Auth::user()->getOrganizationUnitId();
+        $counter_id =  $request->counter_id;
+        $queue_left = CounterRegistration::where('ou_fk',$orgId)
+                    ->where('is_next',0)
+                    ->where('is_skip',0)
+                    ->where('counter_id',$counter_id)
+                    ->where('date_visit',date('Y-m-d'))
+                    ->count();
+        $data = [
+            'queue_left' => $queue_left
+        ];
+
+        return response()->json($data);
+    }
 }

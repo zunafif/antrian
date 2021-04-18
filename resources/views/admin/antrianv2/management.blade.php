@@ -141,6 +141,10 @@ select, select.form-control {
       setInterval(function(){checkPar(filter);}, 2000);
       
       setInterval(function(){checkEmergency(filter);}, 1000);
+
+      if({{$filter}} != 'all'){
+        setInterval(function(){checkQueue(filter);}, 1000);
+      }
     })
 
     function checkEmergency(data){
@@ -159,6 +163,21 @@ select, select.form-control {
         v_counter_id = 'all';
       }
       
+    }
+
+    function checkQueue(data){
+      split = data.split("-");
+      var text = "Antrian Belum Terlayani";
+      $.ajax({
+        method: "POST",
+        url: "{{route('queuefov2.checkQueue')}}",
+        data: {_token:"{{csrf_token()}}", counter_id: split[0]},
+        success: function(data){
+          
+          $('#queue_left_'+split[0]).text('');
+          $('#queue_left_'+split[0]).text(data.queue_left+' '+text);
+        }
+      })
     }
 
     function extQueue(id,type,emergency){

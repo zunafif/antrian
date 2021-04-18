@@ -67,6 +67,7 @@ Route::group(['middleware' => 'web'], function(){
             Route::post('next','Queuefov2Controller@next')->name('queuefov2.next');
             Route::post('skip','Queuefov2Controller@skip')->name('queuefov2.skip');
             Route::post('ready','Queuefov2Controller@ready')->name('queuefov2.ready');
+            Route::post('checkQueue','Queuefov2Controller@checkQueue')->name('queuefov2.checkQueue');
             Route::post('set_fo','Queuefov2Controller@setFoQueue')->name('queuefov2.set_fo');
             Route::post('checkExtData', 'Queuefov2Controller@checkExtData')->name('queuefov2.checkext');
             Route::post('extNext', 'Queuefov2Controller@extNext')->name('queuefov2.extnext');
